@@ -31,9 +31,9 @@ export function getMenuList(pathname: string): Menu[] {
       submenus: []
     },
     {
-      href: "/cms/bai-dang",
+      href: "/cms/blogs",
       label: "Bài đăng",
-      active: pathname.includes("/cms/bai-dang"),
+      active: pathname.includes("/cms/blogs"),
       icon: "notepad-text",
       submenus: []
     },

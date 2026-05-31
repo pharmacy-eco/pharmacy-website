@@ -32,17 +32,22 @@ export function Menu({ isOpen }: MenuProps) {
                     <Tooltip delayDuration={100}>
                       <TooltipTrigger asChild>
                         <Button
-                          variant={active ? "secondary" : "ghost"}
-                          className="w-full justify-start h-10 mb-1 bg-transparent shadow-none hover:bg-transparent"
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start h-10 mb-1 shadow-none transition-colors",
+                            active
+                              ? "bg-white text-blue-26 hover:bg-white hover:text-blue-26"
+                              : "bg-transparent text-white hover:bg-white hover:text-blue-26"
+                          )}
                           asChild
                         >
                           <Link href={href}>
                             <span className={cn(isOpen === false ? "" : "mr-4")}>
-                              <DynamicIcon name={icon} width="20" height="20" color="#ffffff" />
+                              <DynamicIcon name={icon} width="20" height="20" color="currentColor" />
                             </span>
                             <p
                               className={cn(
-                                "max-w-[200px] truncate text-white",
+                                "max-w-[200px] truncate",
                                 isOpen === false ? "-translate-x-96 opacity-0" : "translate-x-0 opacity-100"
                               )}
                             >

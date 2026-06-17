@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image, { ImageProps } from "next/image";
 
 interface NextImgProps extends ImageProps {
@@ -10,7 +13,21 @@ interface NextImgProps extends ImageProps {
 }
 
 const NextImg = ({ src, alt, className, width, height, objectFit = "contain" }: NextImgProps) => {
-  return <Image src={src} alt={alt} className={className} width={width} height={height} objectFit={objectFit} />;
+  const [fallback, setFallback] = useState(false);
+  const imageSrc = fallback || !src ? "/assets/image/medicine.jpg" : src;
+
+  return (
+    <Image
+      src={imageSrc}
+      alt={alt}
+      className={className}
+      width={width}
+      height={height}
+      style={{ objectFit }}
+      unoptimized={imageSrc.startsWith("http")}
+      onError={() => setFallback(true)}
+    />
+  );
 };
 
 export default NextImg;

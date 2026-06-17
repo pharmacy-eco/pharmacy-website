@@ -60,6 +60,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ isOpen, onClose, images, titl
             height={800}
             alt={`Image ${currentIndex + 1}`}
             className="h-full max-w-full object-contain my-4"
+            unoptimized={images[currentIndex].url.startsWith("http")}
           />
           <ButtonRoot
             onClick={nextImage}
@@ -90,6 +91,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ isOpen, onClose, images, titl
                 width={100}
                 height={100}
                 className="w-full h-full object-cover rounded"
+                unoptimized={img.url.startsWith("http")}
               />
             </div>
           ))}

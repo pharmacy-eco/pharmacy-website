@@ -99,7 +99,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       name: name,
       price: price,
       brand: brand,
-      image: ["https://cdn.nhathuoclongchau.com.vn/unsafe/768x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/DSC_08363_4cc0bfe6e0.jpg"], //TODO image
+      image: ["/assets/image/medicine.jpg"], //TODO image
       category: [categoryID],
       property: property,
       description: description,

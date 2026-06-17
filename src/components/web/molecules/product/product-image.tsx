@@ -16,10 +16,10 @@ const ProductImage: React.FC<IProps> = ({ images }: IProps) => {
         <NextImage
           src={images[imageIndex].url}
           width={400}
-          objectFit="contain"
           height={800}
           alt="Product Image"
-          className="max-w-[400px] max-h-[800px]"
+          className="max-w-[400px] max-h-[800px] object-contain"
+          unoptimized={images[imageIndex].url.startsWith("http")}
         />
       </div>
       <div className="flex gap-2 mt-6 pb-2 overflow-x-scroll max-w-full">
@@ -31,6 +31,7 @@ const ProductImage: React.FC<IProps> = ({ images }: IProps) => {
               height={100}
               alt="Product Image"
               className="w-20 h-20 object-cover border rounded-md p-1"
+              unoptimized={image.url.startsWith("http")}
               onClick={() => setImageIndex(index)}
             />
           );

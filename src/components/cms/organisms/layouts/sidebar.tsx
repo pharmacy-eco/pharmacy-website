@@ -28,8 +28,8 @@ export function Sidebar() {
           variant="link"
           asChild
         >
-          <Link href="/dashboard" className="flex items-center gap-2 !h-12 relative">
-            <NextImg src="/assets/logo/logo.svg" alt="Long Châu" width={180} height={56} />
+          <Link href="/dashboard" className="flex items-center gap-2 !h-12 w-[112px] relative">
+            <NextImg src="/assets/logo/logo-wide.png" alt="Medicare" width={112} height={48} />
           </Link>
         </Button>
         <Menu isOpen={sidebar?.isOpen} />

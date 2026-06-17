@@ -22,18 +22,14 @@ export const longChauMetadata: Metadata = {
     siteName: "Nhà thuốc Long Châu",
     locale: "vi_VN",
     type: "article",
-    images: [
-      "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/1200x628_thumb_918fda43bc.png"
-    ]
+    images: ["/assets/logo/logo-wide.png"]
   },
   twitter: {
     card: "summary_large_image",
     title: "Nhà thuốc FPT Long Châu - Hệ thống chuỗi nhà thuốc lớn",
     description:
       "Nhà thuốc FPT Long Châu là chuỗi nhà thuốc tây lớn nhất Việt Nam, thành viên tập đoàn FPT, chuyên thuốc theo đơn, thực phẩm chức năng, dược mỹ phẩm, thiết bị y tế, chăm sóc sức khoẻ",
-    images: [
-      "https://cdn.nhathuoclongchau.com.vn/unsafe/https://cms-prod.s3-sgn09.fptcloud.com/1200x628_thumb_918fda43bc.png"
-    ]
+    images: ["/assets/logo/logo-wide.png"]
   },
   other: {
     copyright: "Nhà thuốc Long Châu",
@@ -42,8 +38,8 @@ export const longChauMetadata: Metadata = {
     "X-UA-Compatible": "IE=edge"
   },
   icons: {
-    icon: "/assets/logo/logo.svg",
-    shortcut: "/assets/logo/logo.svg",
-    apple: "/assets/logo/logo.svg"
+    icon: "/assets/logo/icon.png",
+    shortcut: "/assets/logo/icon.png",
+    apple: "/assets/logo/icon.png"
   }
 };

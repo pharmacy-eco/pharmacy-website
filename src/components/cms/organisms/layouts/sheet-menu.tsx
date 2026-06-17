@@ -15,8 +15,8 @@ export function SheetMenu() {
         <SheetHeader>
           <div className="relative">
             <Button className="flex justify-center items-center pb-2 pt-1" variant="link" asChild>
-              <Link href="/dashboard" className="flex items-center gap-2 h-12">
-                <NextImg src="/assets/logo/logo.svg" alt="Long Châu" width={180} height={56} />
+              <Link href="/dashboard" className="flex items-center gap-2 h-12 w-[112px] relative">
+                <NextImg src="/assets/logo/logo-wide.png" alt="Medicare" width={112} height={48} />
               </Link>
             </Button>
           </div>

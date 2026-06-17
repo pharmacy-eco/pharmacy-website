@@ -40,8 +40,8 @@ const HomeFeaturedBrand: React.FC<IProps> = () => {
                     <NextImg
                       width={160}
                       height={160}
-                      alt="Long Châu"
-                      src="https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/3_a008f780c5.jpg"
+                      alt="Medicare"
+                      src="/assets/image/medicine.jpg"
                       className="absolute w-full h-full"
                     />
                   </div>
@@ -49,8 +49,8 @@ const HomeFeaturedBrand: React.FC<IProps> = () => {
                     <NextImg
                       width={203}
                       height={56}
-                      alt="Long Châu"
-                      src="https://cdn.nhathuoclongchau.com.vn/unsafe/256x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/smalls/OCAVILL_1_0fa129f445.png"
+                      alt="Medicare"
+                      src="/assets/icons/thuong_hieu_yeu_thich_e0c23dded6.webp"
                     />
                   </div>
                   <h4 className="text-blue-12 text-base text-center font-medium line-clamp-2 mt-4">Giảm đến 39%</h4>

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Image from "next/legacy/image";
+import Image from "next/image";
 
 interface NextImgProps {
   src: string;
@@ -11,7 +11,7 @@ interface NextImgProps {
   objectFit?: "cover" | "contain" | "none";
 }
 
-let srcDefault = "/assets/logo/logo.png";
+let srcDefault = "/assets/logo/icon.png";
 
 const NextImg = ({ src, alt, className, width, height, objectFit = "contain" }: NextImgProps) => {
   const [fallback, setFallback] = useState("");
@@ -24,12 +24,11 @@ const NextImg = ({ src, alt, className, width, height, objectFit = "contain" }: 
       src={fallback || src}
       alt={alt}
       onError={handleError}
-      width={width}
-      height={height}
       loading="eager"
       priority
-      objectFit={objectFit}
-      layout="fill"
+      fill
+      sizes={`${width || 180}px`}
+      style={{ objectFit }}
       unoptimized
     />
   );

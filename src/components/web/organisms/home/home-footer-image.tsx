@@ -10,8 +10,8 @@ const HomeFooterImage: React.FC<IProps> = () => {
         <NextImg
           width={1600}
           height={200}
-          src="https://cdn.nhathuoclongchau.com.vn/unsafe/1920x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/chan_trang_desktop_2331700d88.jpg"
-          alt="Long Châu"
+          src="/assets/icons/chan_trang_desktop_2331700d88.webp"
+          alt="Medicare"
           className="absolute w-full h-full object-cover"
         />
       </div>

@@ -18,7 +18,7 @@ const HomeSlider: React.FC<IProps> = ({ banners }) => {
                 <NextImg
                   width={805}
                   height={170}
-                  src={""}
+                  src={x.image || "/assets/image/header_desktop_f832104627.webp"}
                   alt={x.title}
                   className="absolute inset-0 w-full h-full object-cover rounded-lg"
                 />
@@ -32,8 +32,8 @@ const HomeSlider: React.FC<IProps> = ({ banners }) => {
           <NextImg
             width={805}
             height={300}
-            src="https://cdn.nhathuoclongchau.com.vn/unsafe/425x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/Banner_Ung_Thu_1_185705d391.jpg"
-            alt="Long Châu"
+            src="/assets/image/medicine.jpg"
+            alt="Medicare"
             objectFit="cover"
             className="absolute w-full h-full object-cover rounded-lg"
           />
@@ -42,8 +42,8 @@ const HomeSlider: React.FC<IProps> = ({ banners }) => {
           <NextImg
             width={805}
             height={300}
-            src="https://cdn.nhathuoclongchau.com.vn/unsafe/425x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/750x220_ac7b3ecb22.png"
-            alt="Long Châu"
+            src="/assets/image/header_desktop_f832104627.webp"
+            alt="Medicare"
             objectFit="cover"
             className="absolute w-full h-full object-cover rounded-lg"
           />

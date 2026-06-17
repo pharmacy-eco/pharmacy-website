@@ -1,3 +1,4 @@
+import AIChatWidget from "@/components/chat/ai-chat-widget";
 import LayoutRoot from "@/components/web/templates/layout/layout-root";
 import CommonService from "@/services/web/common";
 
@@ -12,5 +13,10 @@ async function fetchCommon() {
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const data = await fetchCommon();
-  return <LayoutRoot common={data || null}>{children}</LayoutRoot>;
+  return (
+    <LayoutRoot common={data || null}>
+      {children}
+      <AIChatWidget />
+    </LayoutRoot>
+  );
 }

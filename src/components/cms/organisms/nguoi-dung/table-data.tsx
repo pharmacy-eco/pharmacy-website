@@ -1,17 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ButtonRoot from "../../atoms/button-atom/button-root";
 import DialogDelete, { IRef as IRefDialogDelete } from "./dialog-delete";
-import DialogProducts, { IRef as IRefDialogForm } from "./dialog";
+import DialogUsers, { IRef as IRefDialogForm } from "./dialog";
 import BlockRoot from "../../atoms/block-atom/block-root";
 import { IPagination } from "@/types/cms/common";
-import { IProduct } from "@/types/cms/product";
-import { formatNumber } from "@/utils/validate";
-
-const DEFAULT_PRODUCT_IMAGE = "/assets/image/medicine.jpg";
+import { IUser } from "@/types/cms/auth";
 
 interface IProps {
-  data: IProduct[];
+  data: IUser[];
   pagination: IPagination;
   onRefresh: () => void;
 }
@@ -19,8 +16,7 @@ interface IProps {
 const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
   const refDialogForm = useRef<IRefDialogForm | null>(null);
   const refDialogDelete = useRef<IRefDialogDelete | null>(null);
-
-  const getItemIndex = (item: any) => {
+  const getItemIndex = (item: IUser) => {
     return (pagination.pageIndex - 1) * pagination.pageSize + data.indexOf(item) + 1;
   };
 
@@ -29,12 +25,12 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">#</TableHead>
-            <TableHead>Hình ảnh</TableHead>
-            <TableHead>Tên thuốc</TableHead>
-            <TableHead>Giá</TableHead>
-            <TableHead>Thương hiệu</TableHead>
-            <TableHead>Danh mục</TableHead>
+            <TableHead className="w-[80px]">#</TableHead>
+            <TableHead>Username</TableHead>
+            <TableHead>Họ tên</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Số điện thoại</TableHead>
+            <TableHead>Vai trò</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead className="w-[200px]">Chức năng</TableHead>
           </TableRow>
@@ -43,27 +39,15 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
           {data.map((item, idx) => (
             <TableRow key={idx}>
               <TableCell className="font-medium">{getItemIndex(item)}</TableCell>
+              <TableCell className="font-medium">{item.username || "-"}</TableCell>
+              <TableCell>{item.fullname || "-"}</TableCell>
+              <TableCell>{item.email || "-"}</TableCell>
+              <TableCell>{item.phone || "-"}</TableCell>
+              <TableCell>{item.role_id === 1 ? "Admin" : "Nhân viên"}</TableCell>
               <TableCell>
-                <div className="inline-block">
-                  <img
-                    width={60}
-                    src={item.image?.[0] || DEFAULT_PRODUCT_IMAGE}
-                    alt={item.name}
-                    onError={(event) => {
-                      if (event.currentTarget.src.includes(DEFAULT_PRODUCT_IMAGE)) return;
-                      event.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
-                    }}
-                  />
-                </div>
-              </TableCell>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell className="font-medium">{formatNumber(item.price)}đ</TableCell>
-              <TableCell className="font-medium">{item.brand}</TableCell>
-              <TableCell className="font-medium">{item.category}</TableCell>
-              <TableCell className="">
                 <BlockRoot type={item.status ? "success" : "error"} text={item.status ? "Hoạt động" : "Khóa"} />
               </TableCell>
-              <TableCell className="">
+              <TableCell>
                 <ButtonRoot
                   size="small"
                   variant="solid"
@@ -91,7 +75,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
         </TableBody>
       </Table>
       <DialogDelete onSuccess={onRefresh} ref={refDialogDelete} />
-      <DialogProducts onSuccess={onRefresh} ref={refDialogForm} />
+      <DialogUsers onSuccess={onRefresh} ref={refDialogForm} />
     </React.Fragment>
   );
 };

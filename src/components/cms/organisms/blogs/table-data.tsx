@@ -1,17 +1,15 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ButtonRoot from "../../atoms/button-atom/button-root";
 import DialogDelete, { IRef as IRefDialogDelete } from "./dialog-delete";
-import DialogProducts, { IRef as IRefDialogForm } from "./dialog";
+import DialogBlogs, { IRef as IRefDialogForm } from "./dialog";
 import BlockRoot from "../../atoms/block-atom/block-root";
 import { IPagination } from "@/types/cms/common";
-import { IProduct } from "@/types/cms/product";
-import { formatNumber } from "@/utils/validate";
-
-const DEFAULT_PRODUCT_IMAGE = "/assets/image/medicine.jpg";
+import { IBlog } from "@/types/cms/blog";
+import { formatDate } from "@/utils/validate";
 
 interface IProps {
-  data: IProduct[];
+  data: IBlog[];
   pagination: IPagination;
   onRefresh: () => void;
 }
@@ -20,7 +18,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
   const refDialogForm = useRef<IRefDialogForm | null>(null);
   const refDialogDelete = useRef<IRefDialogDelete | null>(null);
 
-  const getItemIndex = (item: any) => {
+  const getItemIndex = (item: IBlog) => {
     return (pagination.pageIndex - 1) * pagination.pageSize + data.indexOf(item) + 1;
   };
 
@@ -29,41 +27,33 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">#</TableHead>
-            <TableHead>Hình ảnh</TableHead>
-            <TableHead>Tên thuốc</TableHead>
-            <TableHead>Giá</TableHead>
-            <TableHead>Thương hiệu</TableHead>
+            <TableHead className="w-[70px]">#</TableHead>
+            <TableHead>Tiêu đề</TableHead>
+            <TableHead>Slug</TableHead>
             <TableHead>Danh mục</TableHead>
             <TableHead>Trạng thái</TableHead>
-            <TableHead className="w-[200px]">Chức năng</TableHead>
+            <TableHead>Ngày tạo</TableHead>
+            <TableHead>Ngày cập nhật</TableHead>
+            <TableHead className="w-[180px]">Chức năng</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((item, idx) => (
             <TableRow key={idx}>
               <TableCell className="font-medium">{getItemIndex(item)}</TableCell>
+              <TableCell className="font-medium">{item.title || "-"}</TableCell>
+              <TableCell>{item.slug || "-"}</TableCell>
+              <TableCell>{item.category_id || "-"}</TableCell>
               <TableCell>
-                <div className="inline-block">
-                  <img
-                    width={60}
-                    src={item.image?.[0] || DEFAULT_PRODUCT_IMAGE}
-                    alt={item.name}
-                    onError={(event) => {
-                      if (event.currentTarget.src.includes(DEFAULT_PRODUCT_IMAGE)) return;
-                      event.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
-                    }}
-                  />
-                </div>
+                <BlockRoot
+                  className="flex text-center"
+                  type={Number(item.status) === 1 ? "success" : Number(item.status) === 2 ? "warning" : "error"}
+                  text={Number(item.status) === 1 ? "Hoạt động" : Number(item.status) === 2 ? "Chờ duyệt" : "Khóa"}
+                />
               </TableCell>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell className="font-medium">{formatNumber(item.price)}đ</TableCell>
-              <TableCell className="font-medium">{item.brand}</TableCell>
-              <TableCell className="font-medium">{item.category}</TableCell>
-              <TableCell className="">
-                <BlockRoot type={item.status ? "success" : "error"} text={item.status ? "Hoạt động" : "Khóa"} />
-              </TableCell>
-              <TableCell className="">
+              <TableCell>{item.created_at ? item.created_at : "-"}</TableCell>
+              <TableCell>{item.updated_at ? item.created_at : "-"}</TableCell>
+              <TableCell className="flex flex-1">
                 <ButtonRoot
                   size="small"
                   variant="solid"
@@ -91,7 +81,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
         </TableBody>
       </Table>
       <DialogDelete onSuccess={onRefresh} ref={refDialogDelete} />
-      <DialogProducts onSuccess={onRefresh} ref={refDialogForm} />
+      <DialogBlogs onSuccess={onRefresh} ref={refDialogForm} />
     </React.Fragment>
   );
 };

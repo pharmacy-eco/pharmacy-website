@@ -13,14 +13,14 @@ const HeaderBottom: React.FC<IProps> = () => {
         <div className="flex gap-24 items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center justify-center relative w-[142px] h-[42px] md:w-[185px] md:h-[56px]"
+            className="inline-flex items-center justify-center relative w-[98px] h-[42px] md:w-[131px] md:h-[56px]"
           >
             <NextImg
-              width={185}
+              width={131}
               height={56}
-              src="/assets/logo/logo_default_web_78584a5cc6.webp"
-              alt="Long Châu"
-              className="absolute"
+              src="/assets/logo/logo-wide.png"
+              alt="Medicare"
+              className="w-full h-full object-contain"
             />
           </Link>
           <div className="w-full flex-1 hidden md:block">

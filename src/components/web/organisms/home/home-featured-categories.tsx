@@ -22,8 +22,8 @@ const HomeFeaturedCategories: React.FC<IProps> = () => {
                   <NextImg
                     width={24}
                     height={24}
-                    alt="Long Châu"
-                    src="https://cdn.nhathuoclongchau.com.vn/unsafe/24x0/filters:quality(90)/https://cms-prod.s3-sgn09.fptcloud.com/smalls/than_kinh_nao_level_2_b0cc93af6f.png"
+                    alt="Medicare"
+                    src="/assets/icons/danh_muc_noi_bat_d03496597a.webp"
                   />
                 </div>
                 <h4 className="text-sm font-semibold py-2">Thần kinh não</h4>

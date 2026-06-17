@@ -25,6 +25,7 @@ const ListProducts: React.FC<IProps> = ({ carts, order, updateQuantity, removeFr
                 width={64}
                 height={64}
                 className="rounded object-cover border p-1"
+                unoptimized={(item.image || "").startsWith("http")}
               />
               <div className="flex-1">
                 <p className="font-normal text-sm">{item.name}</p>

@@ -30,8 +30,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
             <TableHead className="w-[70px]">#</TableHead>
             <TableHead>Tiêu đề</TableHead>
             <TableHead>Slug</TableHead>
-            <TableHead>Category ID</TableHead>
-            <TableHead>Meta title</TableHead>
+            <TableHead>Danh mục</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>Ngày tạo</TableHead>
             <TableHead>Ngày cập nhật</TableHead>
@@ -45,16 +44,16 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
               <TableCell className="font-medium">{item.title || "-"}</TableCell>
               <TableCell>{item.slug || "-"}</TableCell>
               <TableCell>{item.category_id || "-"}</TableCell>
-              <TableCell>{item.meta_title || "-"}</TableCell>
               <TableCell>
                 <BlockRoot
+                  className="flex text-center"
                   type={Number(item.status) === 1 ? "success" : Number(item.status) === 2 ? "warning" : "error"}
                   text={Number(item.status) === 1 ? "Hoạt động" : Number(item.status) === 2 ? "Chờ duyệt" : "Khóa"}
                 />
               </TableCell>
-              <TableCell>{item.created_at ? formatDate(item.created_at, "DD/MM/YYYY HH:mm:ss") : "-"}</TableCell>
-              <TableCell>{item.updated_at ? formatDate(item.updated_at, "DD/MM/YYYY HH:mm:ss") : "-"}</TableCell>
-              <TableCell>
+              <TableCell>{item.created_at ? item.created_at : "-"}</TableCell>
+              <TableCell>{item.updated_at ? item.created_at : "-"}</TableCell>
+              <TableCell className="flex flex-1">
                 <ButtonRoot
                   size="small"
                   variant="solid"

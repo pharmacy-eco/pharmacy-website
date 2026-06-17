@@ -95,10 +95,10 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
               <TableCell className="max-w-[360px]">
                 <p className="line-clamp-2">{item.content || "-"}</p>
               </TableCell>
-              <TableCell>
+              <TableCell className="text-center">
                 <BlockRoot type={getStatusType(item.status)} text={getStatusText(item.status)} />
               </TableCell>
-              <TableCell>{item.created_at ? formatDate(item.created_at, "DD/MM/YYYY HH:mm:ss") : "-"}</TableCell>
+              <TableCell>{item.created_at ? item.created_at : "-"}</TableCell>
               <TableCell>
                 {Number(item.status) === 1 ? (
                   <ButtonRoot

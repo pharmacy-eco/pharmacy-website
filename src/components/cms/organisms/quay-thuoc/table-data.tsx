@@ -8,6 +8,8 @@ import { IPagination } from "@/types/cms/common";
 import { IProduct } from "@/types/cms/product";
 import { formatNumber } from "@/utils/validate";
 
+const DEFAULT_PRODUCT_IMAGE = "/assets/image/medicine.jpg";
+
 interface IProps {
   data: IProduct[];
   pagination: IPagination;
@@ -43,7 +45,15 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
               <TableCell className="font-medium">{getItemIndex(item)}</TableCell>
               <TableCell>
                 <div className="inline-block">
-                  <img width={60} src={item.image[0]} alt={item.name} />
+                  <img
+                    width={60}
+                    src={item.image?.[0] || DEFAULT_PRODUCT_IMAGE}
+                    alt={item.name}
+                    onError={(event) => {
+                      if (event.currentTarget.src.includes(DEFAULT_PRODUCT_IMAGE)) return;
+                      event.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                    }}
+                  />
                 </div>
               </TableCell>
               <TableCell className="font-medium">{item.name}</TableCell>

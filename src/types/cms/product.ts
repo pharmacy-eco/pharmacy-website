@@ -2,24 +2,28 @@ import { IResponseData, IResponsePagination } from "@/types/cms/response";
 import { IRequestPagination } from "@/types/cms/request";
 
 interface IProperty {
-  name: string
-  value: string
+  name: string;
+  value: string;
 }
 
 interface IProduct {
-  id?: number
-  name: string
-  slug?: string
-  image: string[]
-  category?: string[]
-  category_id?: string[]
-  created_at?: string
-  updated_at?: string
-  price: number
-  brand: string
-  property: IProperty[]
-  status: number
-  description: string
+  id?: number;
+  name: string;
+  slug?: string;
+  image: string[];
+  category?: number[] | string[] | string;
+  category_id?: number | string | Array<number | string>;
+  created_at?: string;
+  updated_at?: string;
+  price: number;
+  current_price?: number;
+  brand?: string;
+  property?: IProperty[];
+  optionals?: IProperty[] | Record<string, string>;
+  is_hot?: number;
+  status: number;
+  description: string;
+  content?: string;
   unit: string;
   meta_name: string;
   meta_description: string;

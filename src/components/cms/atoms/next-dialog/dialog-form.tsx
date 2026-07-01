@@ -13,6 +13,7 @@ interface IProps {
   loadingAction?: boolean;
   textCancel?: string;
   textAction?: string;
+  disabledAction?: boolean;
   onToggle: React.Dispatch<React.SetStateAction<boolean>>;
   onCancel?: () => void;
   onAction: () => void;
@@ -26,6 +27,7 @@ const DialogForm: React.FC<IProps> = ({
   loadingAction = false,
   textCancel = "Hủy",
   textAction = "Tạo mới",
+  disabledAction = false,
   onToggle,
   onCancel,
   onAction
@@ -38,7 +40,7 @@ const DialogForm: React.FC<IProps> = ({
           <h4 className="text-lg font-medium">{title}</h4>
           <div className="w-full">{children}</div>
         </div>
-        <div className="w-full flex gap-4 items-center justify-end">
+        <div className="sticky bottom-0 z-10 -mx-6 -mb-5 flex w-[calc(100%+3rem)] items-center justify-end gap-4 border-t bg-white px-6 py-4">
           <ButtonRoot
             variant="outline"
             onClick={() => {
@@ -51,7 +53,7 @@ const DialogForm: React.FC<IProps> = ({
           >
             {textCancel}
           </ButtonRoot>
-          <ButtonRoot loading={loadingAction} variant="solid" onClick={onAction}>
+          <ButtonRoot disabled={disabledAction} loading={loadingAction} variant="solid" onClick={onAction}>
             {textAction}
           </ButtonRoot>
         </div>

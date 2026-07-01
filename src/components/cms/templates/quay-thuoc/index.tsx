@@ -5,11 +5,9 @@ import CardTable from "../../atoms/card-atom/card-table";
 import TableData from "../../organisms/quay-thuoc/table-data";
 import { IRef as IRefDialogForm } from "../../organisms/quay-thuoc/dialog";
 import { useProductStore } from "@/stores/product";
-import { useCategoryStore } from "@/stores/category";
 import { IPagination } from "@/types/cms/common";
 import SelectField from "../../atoms/select-atom/select-field";
 import { IProduct } from "@/types/cms/product";
-import { ICategory } from "@/types/cms/category";
 import DialogProducts from "../../organisms/quay-thuoc/dialog";
 
 interface IProps {}
@@ -19,8 +17,6 @@ const TProducts: React.FC<IProps> = () => {
   const [dataList, setDataList] = useState<IProduct[]>([]);
   const [keyword, setKeyword] = useState<string>("");
   const [status, setStatus] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [lstCategory, setListCategory] = useState<any>([]);
   const [pagination, setPagination] = useState<IPagination>({
     pageSize: 10,
     pageIndex: 1,
@@ -29,36 +25,15 @@ const TProducts: React.FC<IProps> = () => {
   });
 
   const { _fnGetListProduct } = useProductStore();
-  const { _fnGetListCategory } = useCategoryStore();
 
   useEffect(() => {
     fnFetchData();
-  }, [keyword, status, category, pagination.pageIndex, pagination.pageSize]);
-
-  useEffect(() => {
-    fnFetchListCategory();
-  }, []);
-
-  const fnFetchListCategory = () => {
-    _fnGetListCategory("") //TODO: Update api category select
-      .then((res) => {
-        const items =
-          res?.data.items.map((item: ICategory) => ({
-            label: item.name,
-            value: String(item.id)
-          })) || [];
-        setListCategory(items);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  }, [keyword, status, pagination.pageIndex, pagination.pageSize]);
 
   const fnFetchData = () => {
     let params = {
-      keyword: keyword,
+      name: keyword,
       status: status,
-      category: category,
       pageSize: pagination.pageSize,
       pageIndex: pagination.pageIndex
     };
@@ -87,7 +62,7 @@ const TProducts: React.FC<IProps> = () => {
 
   return (
     <CardTable
-      title="Danh mục"
+      title="Quầy thuốc"
       textActionAdd="Tạo mới"
       actionFilter={
         <div className="grid grid-cols-12 gap-4">
@@ -102,19 +77,10 @@ const TProducts: React.FC<IProps> = () => {
                 },
                 {
                   label: "Khóa",
-                  value: "0"
+                  value: "2"
                 }
               ]}
               onValueChange={setStatus}
-            />
-          </div>
-          <div className="col-span-2">
-            <SelectField
-              name="category"
-              placeholder="-- Chọn danh mục --"
-              value={String(category)}
-              options={lstCategory}
-              onValueChange={setCategory}
             />
           </div>
         </div>
@@ -122,8 +88,9 @@ const TProducts: React.FC<IProps> = () => {
       keyword={keyword}
       pagination={pagination}
       onActionAdd={() => {
-        refDialogForm.current?.onOpen();
         refDialogForm.current?._onType("create");
+        refDialogForm.current?._setID(undefined);
+        refDialogForm.current?.onOpen();
       }}
       onChangeKeyword={setKeyword}
       onChangePagination={handleChangePagination}

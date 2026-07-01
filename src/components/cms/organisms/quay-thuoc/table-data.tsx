@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ButtonRoot from "../../atoms/button-atom/button-root";
 import DialogDelete, { IRef as IRefDialogDelete } from "./dialog-delete";
@@ -24,6 +24,20 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
     return (pagination.pageIndex - 1) * pagination.pageSize + data.indexOf(item) + 1;
   };
 
+  const getCategoryText = (category: IProduct["category"]) => {
+    if (Array.isArray(category)) {
+      return category
+        .map((item: any) => {
+          if (typeof item === "object") return item?.name || item?.id;
+          return item;
+        })
+        .filter(Boolean)
+        .join(", ");
+    }
+
+    return category || "-";
+  };
+
   return (
     <React.Fragment>
       <Table>
@@ -32,8 +46,8 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
             <TableHead className="w-[100px]">#</TableHead>
             <TableHead>Hình ảnh</TableHead>
             <TableHead>Tên thuốc</TableHead>
-            <TableHead>Giá</TableHead>
-            <TableHead>Thương hiệu</TableHead>
+            <TableHead>Giá gốc</TableHead>
+            <TableHead>Giá hiện tại</TableHead>
             <TableHead>Danh mục</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead className="w-[200px]">Chức năng</TableHead>
@@ -58,10 +72,13 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
               </TableCell>
               <TableCell className="font-medium">{item.name}</TableCell>
               <TableCell className="font-medium">{formatNumber(item.price)}đ</TableCell>
-              <TableCell className="font-medium">{item.brand}</TableCell>
-              <TableCell className="font-medium">{item.category}</TableCell>
+              <TableCell className="font-medium">{formatNumber(item.current_price || item.price)}đ</TableCell>
+              <TableCell className="font-medium">{getCategoryText(item.category)}</TableCell>
               <TableCell className="">
-                <BlockRoot type={item.status ? "success" : "error"} text={item.status ? "Hoạt động" : "Khóa"} />
+                <BlockRoot
+                  type={item.status === 1 ? "success" : "error"}
+                  text={item.status === 1 ? "Hoạt động" : "Khóa"}
+                />
               </TableCell>
               <TableCell className="">
                 <ButtonRoot
@@ -69,9 +86,9 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
                   variant="solid"
                   className="mr-2"
                   onClick={() => {
-                    refDialogForm.current?.onOpen();
                     refDialogForm.current?._onType("update");
                     refDialogForm.current?._setID(item.id);
+                    refDialogForm.current?.onOpen();
                   }}
                 >
                   Cập nhật

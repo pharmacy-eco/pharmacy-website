@@ -47,9 +47,9 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
                   variant="solid"
                   className="mr-2"
                   onClick={() => {
-                    refDialogForm.current?.onOpen();
                     refDialogForm.current?._onType("update");
                     refDialogForm.current?._setID(item.id);
+                    refDialogForm.current?.onOpen();
                   }}
                 >
                   Cập nhật

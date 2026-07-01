@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { http } from "@/lib/http";
 import { IApiEndpoint } from "@/types/cms/common";
-import { IBlog, IBlogListResponse, IBlogResponse } from "@/types/cms/blog";
+import { IBlogListResponse, IBlogPayload, IBlogResponse } from "@/types/cms/blog";
 
 interface IStore {
   _api: Record<"listBlog" | "detailBlog" | "createBlog" | "updateBlog" | "deleteBlog", IApiEndpoint>;
   _fnGetListBlog: (_?: string) => Promise<IBlogListResponse | undefined>;
   _fnGetDetailBlog: (_id: number) => Promise<IBlogResponse | undefined>;
-  _fnGetCreateBlog: (_payload: IBlog) => Promise<IBlogResponse | undefined>;
-  _fnGetUpdateBlog: (_id: number | undefined, _payload: IBlog) => Promise<IBlogResponse | undefined>;
+  _fnGetCreateBlog: (_payload: IBlogPayload) => Promise<IBlogResponse | undefined>;
+  _fnGetUpdateBlog: (_id: number | undefined, _payload: IBlogPayload) => Promise<IBlogResponse | undefined>;
   _fnGetDeleteBlog: (_id: number) => Promise<IBlogResponse | undefined>;
 }
 

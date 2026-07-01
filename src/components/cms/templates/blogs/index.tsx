@@ -31,8 +31,8 @@ const TBlogs: React.FC<IProps> = () => {
 
   const fnFetchData = () => {
     let params = {
-      keyword: keyword,
-      status: status,
+      title: keyword,
+      ...(status ? { status } : {}),
       pageSize: pagination.pageSize,
       pageIndex: pagination.pageIndex
     };
@@ -70,9 +70,8 @@ const TBlogs: React.FC<IProps> = () => {
               name="status"
               value={String(status)}
               options={[
-                { label: "Khóa", value: "0" },
                 { label: "Hoạt động", value: "1" },
-                { label: "Chờ duyệt", value: "2" }
+                { label: "Khóa", value: "2" }
               ]}
               onValueChange={setStatus}
             />

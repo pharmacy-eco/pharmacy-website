@@ -7,6 +7,7 @@ interface ISocial {
 }
 
 interface IGeneral {
+  id?: number;
   company?: string;
   address?: string;
   link_map?: string;
@@ -16,7 +17,7 @@ interface IGeneral {
   email?: string;
   logo?: string;
   favicon?: string;
-  social?: ISocial[];
+  social?: ISocial[] | string[];
   add_head?: string;
   add_body?: string;
   meta_title?: string;

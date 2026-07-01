@@ -3,13 +3,16 @@
 import React, { useState, useImperativeHandle, useEffect } from "react";
 import DialogForm from "../../atoms/next-dialog/dialog-form";
 import InputField from "../../atoms/next-input/input-field";
-import { isNullOrEmpty, toSlug } from "@/utils/validate";
+import { isNullOrEmpty } from "@/utils/validate";
 import SelectField from "../../atoms/select-atom/select-field";
 import { useBlogStore } from "@/stores/blog";
+import { useCategoryStore } from "@/stores/category";
 import sonner from "../../atoms/sonner-atom";
 import common from "@/enums/common-text";
 import QuillEditor from "../../atoms/quil-editor";
 import TextareaRoot from "../../atoms/textarea-atom/textarea-root";
+import { IBlogPayload } from "@/types/cms/blog";
+import { ICategory } from "@/types/cms/category";
 
 interface IProps {
   onSuccess: () => void;
@@ -29,29 +32,37 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
 
   const [id, setID] = useState<number>();
   const [title, setTitle] = useState<string>("");
-  const [slug, setSlug] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [categoryID, setCategoryID] = useState<string>("");
+  const [lstCategory, setListCategory] = useState<{ value: string; label: string }[]>([]);
   const [description, setDescription] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [metaTitle, setMetaTitle] = useState<string>("");
   const [metaDescription, setMetaDescription] = useState<string>("");
-  const [status, setStatus] = useState<string>("2");
-  const [createdBy, setCreatedBy] = useState<string>("");
-  const [updatedBy, setUpdatedBy] = useState<string>("");
-  const [deletedBy, setDeletedBy] = useState<string>("");
+  const [status, setStatus] = useState<string>("1");
 
   const [titleError, setTitleError] = useState<string | null>(null);
-  const [slugError, setSlugError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [categoryIDError, setCategoryIDError] = useState<string | null>(null);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [contentError, setContentError] = useState<string | null>(null);
   const [metaTitleError, setMetaTitleError] = useState<string | null>(null);
+  const [metaDescriptionError, setMetaDescriptionError] = useState<string | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
-  const [createdByError, setCreatedByError] = useState<string | null>(null);
-  const [updatedByError, setUpdatedByError] = useState<string | null>(null);
-  const [deletedByError, setDeletedByError] = useState<string | null>(null);
 
   const { _fnGetCreateBlog, _fnGetUpdateBlog, _fnGetDetailBlog } = useBlogStore();
+  const { _fnGetListCategory } = useCategoryStore();
+
+  const getDetailCategoryID = (data: any) => {
+    if (data?.category_id) return String(data.category_id);
+    if (data?.category?.id) return String(data.category.id);
+
+    return "";
+  };
+
+  useEffect(() => {
+    if (open) fnFetchListCategory();
+  }, [open]);
 
   useEffect(() => {
     if (!!id && open && type === "update") {
@@ -59,17 +70,13 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
         .then((res) => {
           const data = res?.data;
           setTitle(data?.title || "");
-          setSlug(data?.slug || "");
           setImage(data?.image || "");
-          setCategoryID(String(data?.category_id || ""));
+          setCategoryID(getDetailCategoryID(data));
           setDescription(data?.description || "");
           setContent(data?.content || "");
           setMetaTitle(data?.meta_title || "");
           setMetaDescription(data?.meta_description || "");
-          setStatus(String(data?.status ?? 2));
-          setCreatedBy(String(data?.created_by || ""));
-          setUpdatedBy(String(data?.updated_by || ""));
-          setDeletedBy(String(data?.deleted_by || ""));
+          setStatus(String(data?.status ?? 1));
         })
         .catch((error) => {
           console.log(error);
@@ -77,22 +84,42 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
     }
   }, [open]);
 
+  const fnFetchListCategory = () => {
+    const params = new URLSearchParams({
+      pageSize: "1000",
+      pageIndex: "1"
+    }).toString();
+
+    _fnGetListCategory(params)
+      .then((res) => {
+        const categories = res?.data.items || [];
+        const blogCategories = categories.filter((item: ICategory) => item.type === "BLOG");
+        const items = (blogCategories.length > 0 ? blogCategories : categories)
+          .filter((item: ICategory) => !!item.id)
+          .map((item: ICategory) => ({
+            label: item.name,
+            value: String(item.id)
+          }));
+
+        setListCategory(items);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const handleAction = () => {
     if (fnVal()) return;
 
-    const payload: any = {
+    const payload: IBlogPayload = {
       title: title,
-      slug: slug,
       image: image,
       category_id: Number(categoryID),
-      description: description || null,
-      content: content || null,
+      description: description,
+      content: content,
       meta_title: metaTitle,
-      meta_description: metaDescription || null,
-      status: Number(status),
-      created_by: Number(createdBy),
-      updated_by: Number(updatedBy),
-      deleted_by: Number(deletedBy)
+      meta_description: metaDescription,
+      status: Number(status)
     };
 
     setLoading(true);
@@ -145,64 +172,55 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       hasError = true;
       setTitleError("Vui lòng nhập tiêu đề");
     }
-    if (isNullOrEmpty(slug) || isNullOrEmpty((slug || "").trim())) {
-      hasError = true;
-      setSlugError("Vui lòng nhập slug");
-    }
     if (isNullOrEmpty(image) || isNullOrEmpty((image || "").trim())) {
       hasError = true;
-      setImageError("Vui lòng nhập ảnh");
+      setImageError("Vui lòng tải ảnh");
     }
     if (isNullOrEmpty(categoryID) || isNullOrEmpty((categoryID || "").trim())) {
       hasError = true;
-      setCategoryIDError("Vui lòng nhập category_id");
+      setCategoryIDError("Vui lòng chọn danh mục");
+    }
+    if (isNullOrEmpty(description) || isNullOrEmpty((description || "").trim())) {
+      hasError = true;
+      setDescriptionError("Vui lòng nhập mô tả ngắn");
+    }
+    if (isNullOrEmpty(content) || isNullOrEmpty((content || "").trim())) {
+      hasError = true;
+      setContentError("Vui lòng nhập nội dung");
     }
     if (isNullOrEmpty(metaTitle) || isNullOrEmpty((metaTitle || "").trim())) {
       hasError = true;
       setMetaTitleError("Vui lòng nhập meta title");
     }
+    if (isNullOrEmpty(metaDescription) || isNullOrEmpty((metaDescription || "").trim())) {
+      hasError = true;
+      setMetaDescriptionError("Vui lòng nhập meta description");
+    }
     if (isNullOrEmpty(status) || isNullOrEmpty((status || "").trim())) {
       hasError = true;
       setStatusError("Vui lòng chọn trạng thái");
-    }
-    if (isNullOrEmpty(createdBy) || isNullOrEmpty((createdBy || "").trim())) {
-      hasError = true;
-      setCreatedByError("Vui lòng nhập created_by");
-    }
-    if (isNullOrEmpty(updatedBy) || isNullOrEmpty((updatedBy || "").trim())) {
-      hasError = true;
-      setUpdatedByError("Vui lòng nhập updated_by");
-    }
-    if (isNullOrEmpty(deletedBy) || isNullOrEmpty((deletedBy || "").trim())) {
-      hasError = true;
-      setDeletedByError("Vui lòng nhập deleted_by");
     }
     return hasError;
   };
 
   const fnClear = () => {
     setTitle("");
-    setSlug("");
     setImage("");
     setCategoryID("");
     setDescription("");
     setContent("");
     setMetaTitle("");
     setMetaDescription("");
-    setStatus("2");
-    setCreatedBy("");
-    setUpdatedBy("");
-    setDeletedBy("");
+    setStatus("1");
 
     setTitleError(null);
-    setSlugError(null);
     setImageError(null);
     setCategoryIDError(null);
+    setDescriptionError(null);
+    setContentError(null);
     setMetaTitleError(null);
+    setMetaDescriptionError(null);
     setStatusError(null);
-    setCreatedByError(null);
-    setUpdatedByError(null);
-    setDeletedByError(null);
   };
 
   useImperativeHandle(ref, () => ({
@@ -226,7 +244,7 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       onAction={handleAction}
     >
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 md:col-span-6">
+        <div className="col-span-12 md:col-span-8">
           <InputField
             name="title"
             label="Tiêu đề"
@@ -236,24 +254,24 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
             onChange={(evt) => {
               setTitle(evt.target.value);
               setTitleError(null);
-              if (isNullOrEmpty(slug)) setSlug(toSlug(evt.target.value));
             }}
           />
         </div>
-        <div className="col-span-12 md:col-span-6">
-          <InputField
-            name="slug"
-            label="Slug"
-            value={slug}
-            error={slugError}
-            placeholder="nhap-slug"
-            onChange={(evt) => {
-              setSlug(evt.target.value);
-              setSlugError(null);
+        <div className="col-span-12 md:col-span-4">
+          <SelectField
+            name="category_id"
+            label="Danh mục"
+            value={categoryID}
+            error={categoryIDError}
+            options={lstCategory}
+            placeholder="-- Chọn danh mục --"
+            onValueChange={(val) => {
+              setCategoryID(val);
+              setCategoryIDError(null);
             }}
           />
         </div>
-        <div className="col-span-12 md:col-span-6">
+        <div className="col-span-12">
           <InputField
             name="image"
             label="Ảnh"
@@ -266,32 +284,22 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
             }}
           />
         </div>
-        <div className="col-span-12 md:col-span-6">
-          <InputField
-            name="category_id"
-            label="Category ID"
-            value={categoryID}
-            error={categoryIDError}
-            placeholder="Nhập category id ..."
-            onChange={(evt) => {
-              setCategoryID(evt.target.value);
-              setCategoryIDError(null);
-            }}
-          />
-        </div>
         <div className="col-span-12">
           <TextareaRoot
             name="description"
             label="Mô tả ngắn"
             value={description}
+            error={descriptionError}
             placeholder="Nhập mô tả ngắn ..."
             onChange={(evt) => {
               setDescription(evt.target.value);
+              setDescriptionError(null);
             }}
           />
         </div>
         <div className="col-span-12">
           <QuillEditor label="Nội dung" value={content} onChange={setContent} />
+          {contentError && <p className="mt-1 text-[13px] text-red-400">{contentError}</p>}
         </div>
         <div className="col-span-12 md:col-span-6">
           <InputField
@@ -311,65 +319,27 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
             name="meta_description"
             label="Meta description"
             value={metaDescription}
+            error={metaDescriptionError}
             placeholder="Nhập meta description ..."
             onChange={(evt) => {
               setMetaDescription(evt.target.value);
+              setMetaDescriptionError(null);
             }}
           />
         </div>
-        <div className="col-span-12 md:col-span-3">
+        <div className="col-span-12 md:col-span-4">
           <SelectField
             name="status"
             label="Trạng thái"
             value={String(status)}
             error={statusError}
             options={[
-              { label: "Khóa", value: "0" },
               { label: "Hoạt động", value: "1" },
-              { label: "Chờ duyệt", value: "2" }
+              { label: "Khóa", value: "2" }
             ]}
             onValueChange={(val) => {
               setStatus(val);
               setStatusError(null);
-            }}
-          />
-        </div>
-        <div className="col-span-12 md:col-span-3">
-          <InputField
-            name="created_by"
-            label="Created by"
-            value={createdBy}
-            error={createdByError}
-            placeholder="User ID"
-            onChange={(evt) => {
-              setCreatedBy(evt.target.value);
-              setCreatedByError(null);
-            }}
-          />
-        </div>
-        <div className="col-span-12 md:col-span-3">
-          <InputField
-            name="updated_by"
-            label="Updated by"
-            value={updatedBy}
-            error={updatedByError}
-            placeholder="User ID"
-            onChange={(evt) => {
-              setUpdatedBy(evt.target.value);
-              setUpdatedByError(null);
-            }}
-          />
-        </div>
-        <div className="col-span-12 md:col-span-3">
-          <InputField
-            name="deleted_by"
-            label="Deleted by"
-            value={deletedBy}
-            error={deletedByError}
-            placeholder="User ID"
-            onChange={(evt) => {
-              setDeletedBy(evt.target.value);
-              setDeletedByError(null);
             }}
           />
         </div>

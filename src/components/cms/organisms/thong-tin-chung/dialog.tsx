@@ -25,6 +25,7 @@ const DialogInfos = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
   const [open, setOpen] = useState<boolean>(false);
   const [type, setType] = useState<"create" | "update">("create");
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingDetail, setLoadingDetail] = useState<boolean>(false);
 
   const [id, setID] = useState<number>();
   const [name, setName] = useState<string>("");
@@ -42,24 +43,49 @@ const DialogInfos = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
   const { _fnGetCreateInfo, _fnGetUpdateInfo, _fnGetDetailInfo } = useInfoStore();
 
   useEffect(() => {
+    let isMounted = true;
+
     if (!!id && open && type === "update") {
+      setLoadingDetail(true);
       _fnGetDetailInfo(id)
         .then((res) => {
+          if (!isMounted) return;
           const data = res?.data;
           setName(data?.name || "");
-          setStatus(String(data?.status) || "");
+          setStatus(String(data?.status ?? "1"));
           setDescription(data?.description || "");
           setMetaName(data?.meta_name || "");
           setMetaDescription(data?.meta_description || "");
         })
         .catch((error) => {
+          if (!isMounted) return;
           console.log(error);
+          sonner({
+            type: "error",
+            message: "Không thể lấy dữ liệu thông tin"
+          });
+        })
+        .finally(() => {
+          if (!isMounted) return;
+          setLoadingDetail(false);
         });
     }
-  }, [open]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, open, type]);
 
   const handleAction = () => {
+    if (loadingDetail) return;
     if (fnVal()) return;
+    if (type === "update" && !id) {
+      sonner({
+        type: "error",
+        message: "Không tìm thấy dữ liệu cần cập nhật"
+      });
+      return;
+    }
     const payload = {
       name: name,
       description: description,
@@ -134,10 +160,11 @@ const DialogInfos = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
 
   const fnClear = () => {
     setName("");
-    setStatus("");
+    setStatus("1");
     setMetaName("");
     setDescription("");
     setMetaDescription("");
+    setLoadingDetail(false);
 
     setNameError(null);
     setStatusError(null);
@@ -157,15 +184,24 @@ const DialogInfos = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       open={open}
       className="w-[800px] max-w-full max-h-[90vh] overflow-y-auto"
       title={type === "create" ? "Tạo mới thông tin" : "Cập nhật thông tin"}
-      textAction={type === "create" ? "Tạo mới" : "Cập nhật"}
-      loadingAction={loading}
+      textAction={type === "create" ? "Lưu" : "Lưu thay đổi"}
+      loadingAction={loading || loadingDetail}
+      disabledAction={loadingDetail}
       onToggle={(val) => {
         setOpen(val);
-        fnClear();
+        if (!val) {
+          fnClear();
+          setID(undefined);
+        }
       }}
       onAction={handleAction}
     >
       <div className="grid grid-cols-12 gap-4">
+        {type === "update" && (
+          <div className="col-span-12 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-700">
+            {loadingDetail ? "Đang tải dữ liệu..." : "Dữ liệu đã sẵn sàng để cập nhật"}
+          </div>
+        )}
         <div className="col-span-12">
           <InputField
             name="name"

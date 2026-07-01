@@ -10,6 +10,22 @@ import SocialForm from "../../molecules/social-form";
 
 interface IProps {}
 
+const normalizeSocial = (social?: IGeneral["social"]) => {
+  if (!Array.isArray(social)) return [];
+
+  return social.map((item) => {
+    if (typeof item === "string") {
+      return {
+        image: "",
+        name: "",
+        link: item
+      };
+    }
+
+    return item;
+  });
+};
+
 const TGeneral: React.FC<IProps> = () => {
   const [data, setData] = useState<IGeneral>();
   const { _fnGetDetailGeneral } = useGeneralStore();
@@ -21,7 +37,7 @@ const TGeneral: React.FC<IProps> = () => {
   const fnFetchData = () => {
     _fnGetDetailGeneral()
       .then((res) => {
-        const items = res?.data || [];
+        const items = res?.data;
         setData(items);
       })
       .catch((error) => {
@@ -101,7 +117,10 @@ const TGeneral: React.FC<IProps> = () => {
               />
             </div>
           </div>
-          <SocialForm items={data?.social || []} onChange={(val) => setData({ ...data, social: val })}></SocialForm>
+          <SocialForm
+            items={normalizeSocial(data?.social)}
+            onChange={(val) => setData({ ...data, social: val })}
+          ></SocialForm>
         </div>
         <div className="col-span-6  flex flex-col gap-4">
           <InputField

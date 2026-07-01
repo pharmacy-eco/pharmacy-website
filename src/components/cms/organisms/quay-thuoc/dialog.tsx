@@ -13,6 +13,7 @@ import { ICategory } from "@/types/cms/category";
 import { IProperty } from "@/types/cms/product";
 import FeatureForm from "../../molecules/feature-form";
 import QuillEditor from "../../atoms/quil-editor";
+import { DynamicIcon } from "../../atoms/dynamic-lucidev";
 
 interface IProps {
   onSuccess: () => void;
@@ -32,8 +33,9 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
 
   const [id, setID] = useState<number>();
   const [name, setName] = useState<string>("");
-  const [brand, setBrand] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
+  const [currentPrice, setCurrentPrice] = useState<number>(0);
+  const [isHot, setIsHot] = useState<string>("0");
   const [categoryID, setCategoryID] = useState<string>("");
   const [property, setProperty] = useState<IProperty[]>([]);
   const [lstCategory, setListCategory] = useState<{ value: string; label: string }[] | []>([]);
@@ -42,33 +44,93 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
   const [image, setImage] = useState<string[]>([]);
   const [unit, setUnit] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [content, setContent] = useState<string>("");
   const [metaName, setMetaName] = useState<string>("");
   const [metaDescription, setMetaDescription] = useState<string>("");
 
   const [nameError, setNameError] = useState<string | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [priceError, setPriceError] = useState<string | null>(null);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [contentError, setContentError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [metaNameError, setMetaNameError] = useState<string | null>(null);
   const [metaDescriptionError, setMetaDescriptionError] = useState<string | null>(null);
 
   const { _fnGetListCategory } = useCategoryStore();
   const { _fnGetCreateProduct, _fnGetUpdateProduct, _fnGetDetailProduct } = useProductStore();
 
+  const getDetailCategoryID = (data: any) => {
+    if (Array.isArray(data?.category_id)) return String(data.category_id[0] || "");
+    if (data?.category_id) return String(data.category_id);
+    if (Array.isArray(data?.category)) {
+      const category = data.category[0];
+      return String(typeof category === "object" ? category?.id || "" : category || "");
+    }
+    if (data?.category?.id) return String(data.category.id);
+
+    return "";
+  };
+
+  const getDetailOptionals = (data: any): IProperty[] => {
+    const optionals = data?.optionals || data?.property || [];
+
+    if (Array.isArray(optionals)) return optionals;
+    if (typeof optionals === "object") {
+      return Object.entries(optionals).map(([name, value]) => ({
+        name,
+        value: String(value)
+      }));
+    }
+
+    return [];
+  };
+
+  const getDetailImages = (data: any): string[] => {
+    const toUrls = (value: any): string[] => {
+      if (!value) return [];
+      if (typeof value === "string") return value.trim() ? [value] : [];
+      if (Array.isArray(value)) {
+        return value
+          .map((item) => {
+            if (typeof item === "string") return item;
+            return item?.url || item?.image || item?.src || "";
+          })
+          .filter(Boolean);
+      }
+
+      return [];
+    };
+
+    return [
+      ...toUrls(data?.image),
+      ...toUrls(data?.images),
+      ...toUrls(data?.productImage),
+      ...toUrls(data?.productImages),
+      ...toUrls(data?.product_image)
+    ].filter((url, index, items) => items.indexOf(url) === index);
+  };
+
   useEffect(() => {
-    open && fnFetchListCategory();
+    if (open) fnFetchListCategory();
+  }, [open]);
+
+  useEffect(() => {
     if (!!id && open && type === "update") {
       _fnGetDetailProduct(id)
         .then((res) => {
           const data = res?.data;
           setName(data?.name || "");
-          setStatus(String(data?.status) || "");
-          setCategoryID(String(data?.category_id));
-          setProperty(data?.property || []);
+          setStatus(String(data?.status ?? "1"));
+          setCategoryID(getDetailCategoryID(data));
+          setProperty(getDetailOptionals(data));
           setDescription(data?.description || "");
-          setImage(data?.image || []);
+          setContent(data?.content || "");
+          setImage(getDetailImages(data));
           setPrice(data?.price || 0);
-          setBrand(data?.brand || "");
+          setCurrentPrice(data?.current_price ?? data?.price ?? 0);
+          setIsHot(String(data?.is_hot ?? "0"));
           setUnit(data?.unit || "");
           setMetaName(data?.meta_name || "");
           setMetaDescription(data?.meta_description || "");
@@ -77,15 +139,16 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           console.log(error);
         });
     }
-  }, [open]);
+  }, [id, open, type]);
 
   const fnFetchListCategory = () => {
-    _fnGetListCategory('') //TODO: Update api category select
+    _fnGetListCategory("") //TODO: Update api category select
       .then((res) => {
-        const items = res?.data.items.map((item: ICategory) => ({
-          label: item.name,
-          value: String(item.id)
-        })) || [];
+        const items =
+          res?.data.items.map((item: ICategory) => ({
+            label: item.name,
+            value: String(item.id)
+          })) || [];
         setListCategory(items);
       })
       .catch((error) => {
@@ -93,20 +156,41 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       });
   };
 
+  const handleChangeImage = (index: number, value: string) => {
+    const items = [...image];
+    items[index] = value;
+    setImage(items);
+    setImageError(null);
+  };
+
+  const handleAddImage = () => {
+    setImage([...image, ""]);
+    setImageError(null);
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImage(image.filter((_, idx) => idx !== index));
+    setImageError(null);
+  };
+
   const handleAction = () => {
     if (fnVal()) return;
+    const imageUrls = image.map((url) => url.trim()).filter(Boolean);
+    const categoryIds = categoryID ? [Number(categoryID)] : [];
     const payload = {
       name: name,
       price: price,
-      brand: brand,
-      image: ["/assets/image/medicine.jpg"], //TODO image
-      category: [categoryID],
-      property: property,
-      description: description,
+      current_price: currentPrice || price,
+      is_hot: Number(isHot),
       unit: unit,
+      image: imageUrls,
+      category: categoryIds,
+      description: description,
+      content: content,
       meta_name: metaName,
       meta_description: metaDescription,
-      status: Number(status),
+      optionals: property,
+      status: Number(status)
     };
     setLoading(true);
     if (type === "create") {
@@ -158,6 +242,14 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       hasError = true;
       setNameError("Vui lòng nhập sản phẩm");
     }
+    if (!price) {
+      hasError = true;
+      setPriceError("Vui lòng nhập giá sản phẩm");
+    }
+    if (isNullOrEmpty(categoryID) || isNullOrEmpty((categoryID || "").trim())) {
+      hasError = true;
+      setCategoryError("Vui lòng chọn danh mục");
+    }
     if (isNullOrEmpty(description) || isNullOrEmpty((description || "").trim())) {
       hasError = true;
       setDescriptionError("Vui lòng nhập mô tả");
@@ -165,6 +257,15 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
         type: "error",
         message: "Vui lòng nhập mô tả"
       });
+    }
+    if (isNullOrEmpty(content) || isNullOrEmpty((content || "").trim())) {
+      hasError = true;
+      setContentError("Vui lòng nhập nội dung chi tiết");
+    }
+    const imageUrls = image.map((url) => url.trim()).filter(Boolean);
+    if (imageUrls.length === 0) {
+      hasError = true;
+      setImageError("Vui lòng nhập URL hình ảnh");
     }
     if (isNullOrEmpty(metaName) || isNullOrEmpty((metaName || "").trim())) {
       hasError = true;
@@ -183,15 +284,26 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
 
   const fnClear = () => {
     setName("");
-    setStatus("");
+    setStatus("1");
     setCategoryID("");
+    setProperty([]);
+    setImage([]);
+    setPrice(0);
+    setCurrentPrice(0);
+    setIsHot("0");
+    setUnit("");
     setMetaName("");
     setDescription("");
+    setContent("");
     setMetaDescription("");
 
     setNameError(null);
     setStatusError(null);
+    setPriceError(null);
+    setCategoryError(null);
+    setImageError(null);
     setDescriptionError(null);
+    setContentError(null);
     setMetaNameError(null);
     setMetaDescriptionError(null);
   };
@@ -217,7 +329,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       onAction={handleAction}
     >
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-9">
+        <div className="col-span-6">
           <InputField
             name="name"
             label="Tên sản phẩm"
@@ -233,10 +345,10 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
         <div className="col-span-3">
           <InputField
             name="price"
-            label="Giá sản phẩm"
+            label="Giá gốc"
             value={price}
             error={priceError}
-            placeholder="Nhập giá sản phẩm ..."
+            placeholder="Nhập giá gốc ..."
             onChange={(evt) => {
               const value = evt.target.value;
               if (/^\d*$/.test(value)) {
@@ -246,9 +358,80 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
             }}
           />
         </div>
+        <div className="col-span-3">
+          <InputField
+            name="current_price"
+            label="Giá hiện tại"
+            value={currentPrice}
+            placeholder="Nhập giá hiện tại ..."
+            onChange={(evt) => {
+              const value = evt.target.value;
+              if (/^\d*$/.test(value)) {
+                setCurrentPrice(Number(value));
+              }
+            }}
+          />
+        </div>
         <div className="col-span-12">
-          {/* TODO: upload image */}
-
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-sm text-black-02">URL hình ảnh</label>
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-blue-1d px-3 text-sm text-white"
+              onClick={handleAddImage}
+            >
+              <DynamicIcon name="plus" size={16} color="#fff" />
+              Thêm ảnh
+            </button>
+          </div>
+          <div className="mt-2 flex flex-col gap-3">
+            {(image.length > 0 ? image : [""]).map((url, index) => (
+              <div className="grid grid-cols-12 gap-3" key={index}>
+                <div className="col-span-11">
+                  <InputField
+                    name={`image-${index}`}
+                    trim={false}
+                    value={url}
+                    error={index === 0 ? imageError : null}
+                    placeholder="https://..."
+                    onChange={(evt) => {
+                      handleChangeImage(index, evt.target.value);
+                    }}
+                  />
+                </div>
+                <div className="col-span-1 flex items-start">
+                  <button
+                    type="button"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-500 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={image.length === 0}
+                    onClick={() => handleRemoveImage(index)}
+                  >
+                    <DynamicIcon name="trash" size={16} color="#fff" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {image.map((url) => url.trim()).filter(Boolean).length > 0 && (
+            <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+              {image
+                .map((url) => url.trim())
+                .filter(Boolean)
+                .map((url, index) => (
+                  <div className="rounded-lg border border-gray-200 bg-white p-2" key={`${url}-${index}`}>
+                    <img
+                      src={url}
+                      alt={`${name || "Preview sản phẩm"} ${index + 1}`}
+                      className="h-32 w-full rounded-md object-contain"
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                        setImageError("Có URL hình ảnh không hiển thị được");
+                      }}
+                    />
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
 
         <div className="col-span-12">
@@ -261,20 +444,31 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
             label="Danh mục"
             className="w-full"
             value={categoryID}
+            error={categoryError}
             options={lstCategory}
             placeholder="-- Chọn danh mục --"
-            onValueChange={(val) => setCategoryID(val)}  // TODO: select multiple
+            onValueChange={(val) => {
+              setCategoryID(val);
+              setCategoryError(null);
+            }}
           />
         </div>
         <div className="col-span-4">
-          <InputField
-            name="brand"
-            label="Thương hiệu"
-            value={brand}
-            placeholder="Nhập thương hiệu sản phẩm ..."
-            onChange={(evt) => {
-              setBrand(evt.target.value);
-            }}
+          <SelectField
+            name="is_hot"
+            label="Sản phẩm nổi bật"
+            value={isHot}
+            options={[
+              {
+                label: "Không nổi bật",
+                value: "0"
+              },
+              {
+                label: "Nổi bật",
+                value: "1"
+              }
+            ]}
+            onValueChange={setIsHot}
           />
         </div>
         <div className="col-span-4">
@@ -289,18 +483,26 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           />
         </div>
         <div className="col-span-12">
-          <QuillEditor label='Mô tả' value={description} onChange={setDescription} />
-          {/* <TextareaRoot
-            name="description"
+          <QuillEditor
             label="Mô tả"
             value={description}
-            error={descriptionError}
-            placeholder="Nhập mô tả ..."
-            onChange={(evt) => {
-              setDescription(evt.target.value);
+            onChange={(value) => {
+              setDescription(value);
               setDescriptionError(null);
             }}
-          /> */}
+          />
+          {descriptionError && <p className="mt-1 text-[13px] text-red-400">{descriptionError}</p>}
+        </div>
+        <div className="col-span-12">
+          <QuillEditor
+            label="Nội dung chi tiết"
+            value={content}
+            onChange={(value) => {
+              setContent(value);
+              setContentError(null);
+            }}
+          />
+          {contentError && <p className="mt-1 text-[13px] text-red-400">{contentError}</p>}
         </div>
         <div className="col-span-12">
           <InputField
@@ -341,7 +543,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
               },
               {
                 label: "Khóa",
-                value: "0"
+                value: "2"
               }
             ]}
             onValueChange={(val) => {
@@ -351,7 +553,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           />
         </div>
       </div>
-    </DialogForm >
+    </DialogForm>
   );
 });
 

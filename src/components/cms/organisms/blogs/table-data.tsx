@@ -6,7 +6,6 @@ import DialogBlogs, { IRef as IRefDialogForm } from "./dialog";
 import BlockRoot from "../../atoms/block-atom/block-root";
 import { IPagination } from "@/types/cms/common";
 import { IBlog } from "@/types/cms/blog";
-import { formatDate } from "@/utils/validate";
 
 interface IProps {
   data: IBlog[];
@@ -43,16 +42,16 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
               <TableCell className="font-medium">{getItemIndex(item)}</TableCell>
               <TableCell className="font-medium">{item.title || "-"}</TableCell>
               <TableCell>{item.slug || "-"}</TableCell>
-              <TableCell>{item.category_id || "-"}</TableCell>
+              <TableCell>{item.category_name || "-"}</TableCell>
               <TableCell>
                 <BlockRoot
                   className="flex text-center"
-                  type={Number(item.status) === 1 ? "success" : Number(item.status) === 2 ? "warning" : "error"}
-                  text={Number(item.status) === 1 ? "Hoạt động" : Number(item.status) === 2 ? "Chờ duyệt" : "Khóa"}
+                  type={Number(item.status) === 1 ? "success" : "error"}
+                  text={Number(item.status) === 1 ? "Hoạt động" : "Khóa"}
                 />
               </TableCell>
               <TableCell>{item.created_at ? item.created_at : "-"}</TableCell>
-              <TableCell>{item.updated_at ? item.created_at : "-"}</TableCell>
+              <TableCell>{item.updated_at ? item.updated_at : "-"}</TableCell>
               <TableCell className="flex flex-1">
                 <ButtonRoot
                   size="small"

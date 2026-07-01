@@ -28,7 +28,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
           <TableRow>
             <TableHead className="w-[70px]">#</TableHead>
             <TableHead>Tiêu đề</TableHead>
-            <TableHead>Slug</TableHead>
+            <TableHead>Đường dẫn</TableHead>
             <TableHead>Danh mục</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>Ngày tạo</TableHead>

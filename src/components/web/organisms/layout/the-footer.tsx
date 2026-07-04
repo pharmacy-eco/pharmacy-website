@@ -128,26 +128,20 @@ const TheFooter: React.FC<IProps> = () => {
                 </Link>
               </div>
             </div>
-            <div className="flex-grow-1 max-w-full">
+            {/* <div className="flex-grow-1 max-w-full">
               <h4 className="text-xs text-caption font-semibold mb-2 text-[#657384] uppercase">
                 Tải ứng dụng Long Châu
               </h4>
               <Link href="/" className="w-[100px] h-[100px]">
                 <NextImg src="/assets/icons/QR_100x100_3x_1b3ed147f3.webp" width={100} height={100} alt="Long Châu" />
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="w-full py-6 border-t border-gray-100">
           <p className="text-sm text-black-4a text-center font-light">
-            © 2007 - 2025 Công ty Cổ Phần Dược Phẩm FPT Long Châu Số ĐKKD 0315275368 cấp ngày 17/09/2018 tại Sở Kế hoạch
-            Đầu tư TPHCM
-            <br />
-            GP thiết lập TTTĐTTH số 538/GP-TTĐT do Sở TTTT Hồ Chí Minh cấp ngày 27 tháng 03 năm 2025
-            <br />
-            • Địa chỉ: 379-381 Hai Bà Trưng, P. Võ Thị Sáu, Q.3, TP. HCM • Số điện thoại: (028)73023456Email:
-            sale@nhathuoclongchau.com.vn
-            <br />• Người chịu trách nhiệm nội dung: Dự Án Ngonnn 😋
+            ©2026
+            <br />• Người chịu trách nhiệm nội dung: Medicare
           </p>
         </div>
       </div>

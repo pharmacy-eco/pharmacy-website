@@ -11,7 +11,7 @@ const HeaderTop: React.FC<IProps> = ({}) => {
       <div className="flex justify-between py-2">
         <div className="flex gap-3 items-center">
           <DynamicIcon name="megaphone" size="20" color="#ffffff" strokeWidth={2} />
-          <h3 className="text-[13px] md:text-sm text-white font-medium">Trung tâm tiêm chủng Long Châu </h3>
+          <h3 className="text-[13px] md:text-sm text-white font-medium">Sản phẩm đang phát triển </h3>
           <Link href="/" className="text-[13px] md:text-sm text-white font-normal underline">
             Xem chi tiết
           </Link>

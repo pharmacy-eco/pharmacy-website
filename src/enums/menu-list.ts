@@ -64,13 +64,13 @@ export function getMenuList(pathname: string): Menu[] {
       active: pathname.includes("/cms/thong-tin-chung"),
       icon: "badge-info",
       submenus: []
-    },
-    {
-      href: "/cms/cau-hinh",
-      label: "Cấu hình hệ thống",
-      active: pathname.includes("/cms/cau-hinh"),
-      icon: "settings",
-      submenus: []
     }
+    // {
+    //   href: "/cms/cau-hinh",
+    //   label: "Cấu hình hệ thống",
+    //   active: pathname.includes("/cms/cau-hinh"),
+    //   icon: "settings",
+    //   submenus: []
+    // }
   ];
 }

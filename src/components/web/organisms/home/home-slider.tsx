@@ -18,7 +18,7 @@ const HomeSlider: React.FC<IProps> = ({ banners }) => {
                 <NextImg
                   width={805}
                   height={170}
-                  src={x.image || "/assets/image/header_desktop_f832104627.webp"}
+                  src={x.image || "/assets/image/header_desktop_f832104627.png"}
                   alt={x.title}
                   className="absolute inset-0 w-full h-full object-cover rounded-lg"
                 />
@@ -32,7 +32,7 @@ const HomeSlider: React.FC<IProps> = ({ banners }) => {
           <NextImg
             width={805}
             height={300}
-            src="/assets/image/medicine.jpg"
+            src="/assets/image/banner_7.png"
             alt="Medicare"
             objectFit="cover"
             className="absolute w-full h-full object-cover rounded-lg"
@@ -42,7 +42,7 @@ const HomeSlider: React.FC<IProps> = ({ banners }) => {
           <NextImg
             width={805}
             height={300}
-            src="/assets/image/header_desktop_f832104627.webp"
+            src="/assets/image/banner_8.png"
             alt="Medicare"
             objectFit="cover"
             className="absolute w-full h-full object-cover rounded-lg"

@@ -61,7 +61,7 @@ export default function LoginPage() {
         router.push("/cms/dashboard");
         sonner({
           type: "success",
-          message: "Chào mừng bạn tới Long Châu CMS !!!"
+          message: "Chào mừng bạn tới Medicare CMS !!!"
         });
       })
       .catch((error) => {
@@ -82,7 +82,7 @@ export default function LoginPage() {
     <div className="px-6 py-8 rounded-[20px] w-[calc(100vw-48px)] md:w-[400px] bg-white backdrop-blur">
       <form className="relative w-full h-full z-20">
         <div className="mb-6">
-          <h1 className="text-xl text-black-02 font-medium">Chào mừng tới Long Châu CMS</h1>
+          <h1 className="text-xl text-black-02 font-medium">Chào mừng tới Medicare CMS</h1>
           <p className="text-sm text-black-02 font-normal">Tài khoản sử dụng mọi dịch vụ</p>
         </div>
 

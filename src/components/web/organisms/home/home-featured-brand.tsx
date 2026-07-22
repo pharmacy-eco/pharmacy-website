@@ -3,10 +3,13 @@ import CardFeatured from "../../atoms/card-atom/card-featured";
 import SliderRoot from "../../atoms/slider-atom/slider-root";
 import NextImg from "../../atoms/next-img";
 import Link from "next/link";
+import { IBrand } from "@/types/web/common";
 
-interface IProps {}
+interface IProps {
+  brands: IBrand[];
+}
 
-const HomeFeaturedBrand: React.FC<IProps> = () => {
+const HomeFeaturedBrand: React.FC<IProps> = ({ brands }) => {
   return (
     <CardFeatured title="Thương hiệu yêu thích" className="py-6">
       <SliderRoot
@@ -30,34 +33,26 @@ const HomeFeaturedBrand: React.FC<IProps> = () => {
           }
         ]}
       >
-        {Array(6)
-          .fill(0)
-          .map((_, idx) => {
-            return (
-              <Link href="/" key={idx} className="w-full h-full group">
-                <div className="w-full h-full p-4 pb-8 !flex flex-col items-center justify-center rounded-xl bg-white transition-all duration-300 border border-transparent group-hover:border-blue-1d">
-                  <div className="w-40 h-40 relative">
-                    <NextImg
-                      width={160}
-                      height={160}
-                      alt="Medicare"
-                      src="/assets/image/medicine.jpg"
-                      className="absolute w-full h-full"
-                    />
-                  </div>
-                  <div className="w-full h-auto mt-4 border border-gray-200 rounded-lg overflow-hidden">
-                    <NextImg
-                      width={203}
-                      height={56}
-                      alt="Medicare"
-                      src="/assets/icons/thuong_hieu_yeu_thich_e0c23dded6.webp"
-                    />
-                  </div>
-                  <h4 className="text-blue-12 text-base text-center font-medium line-clamp-2 mt-4">Giảm đến 39%</h4>
+        {brands.map((brand) => {
+          const image = brand.image?.replace(/^http:\/\//, "https://") || "";
+
+          return (
+            <Link href={`/${brand.slug}`} key={brand.id} className="w-full h-full group">
+              <div className="w-full h-full p-4 pb-8 !flex flex-col items-center justify-center rounded-xl bg-white transition-all duration-300 border border-transparent group-hover:border-blue-1d">
+                <div className="w-40 h-40 relative">
+                  <NextImg
+                    width={160}
+                    height={160}
+                    alt={brand.meta_name || brand.name}
+                    src={image}
+                    className="absolute w-full h-full"
+                  />
                 </div>
-              </Link>
-            );
-          })}
+                <h4 className="text-blue-12 text-base text-center font-medium line-clamp-2 mt-4">{brand.name}</h4>
+              </div>
+            </Link>
+          );
+        })}
       </SliderRoot>
     </CardFeatured>
   );

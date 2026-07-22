@@ -13,6 +13,7 @@ import QuillEditor from "../../atoms/quil-editor";
 import TextareaRoot from "../../atoms/textarea-atom/textarea-root";
 import { IBlogPayload } from "@/types/cms/blog";
 import { ICategory } from "@/types/cms/category";
+import DropzoneImageUpload from "../../atoms/upload/dropzone-image-upload";
 
 interface IProps {
   onSuccess: () => void;
@@ -272,14 +273,13 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           />
         </div>
         <div className="col-span-12">
-          <InputField
-            name="image"
+          <DropzoneImageUpload
+            maxFiles={1}
             label="Ảnh"
-            value={image}
+            listPreview={image ? [image] : []}
             error={imageError}
-            placeholder="https://..."
-            onChange={(evt) => {
-              setImage(evt.target.value);
+            onChange={(urls) => {
+              setImage(urls[0] || "");
               setImageError(null);
             }}
           />

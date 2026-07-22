@@ -52,7 +52,7 @@ const ProductInfo: React.FC<IProps> = ({ product }: IProps) => {
             <td className="py-2 text-gray-700">Danh mục</td>
             <td>
               {" "}
-              <Link href={product.category[0].slug} className="text-blue-500">
+              <Link href={`/${product.category[0].slug}`} className="text-blue-500">
                 {product.category[0].name}
               </Link>
             </td>
@@ -74,7 +74,7 @@ const ProductInfo: React.FC<IProps> = ({ product }: IProps) => {
         </div>
         <div className="text-base">
           <p className="text-gray-700 font-medium">Danh mục</p>
-          <Link href={product.category[0].slug} className="text-blue-500">
+          <Link href={`/${product.category[0].slug}`} className="text-blue-500">
             {product.category[0].name}
           </Link>
         </div>

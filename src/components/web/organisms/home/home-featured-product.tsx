@@ -19,8 +19,8 @@ const HomeFeaturedProduct: React.FC<IProps> = ({ products }) => {
       <div className="grid gap-5 grid-cols-12">
         {products.map((x, idx) => {
           return (
-            <div className="col-span-6 md:col-span-3 lg:col-span-2">
-              <CardProduct key={idx} item={x} />
+            <div key={idx} className="col-span-6 md:col-span-3 lg:col-span-2">
+              <CardProduct item={x} />
             </div>
           );
         })}

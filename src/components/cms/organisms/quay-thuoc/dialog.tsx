@@ -13,7 +13,7 @@ import { ICategory } from "@/types/cms/category";
 import { IProperty } from "@/types/cms/product";
 import FeatureForm from "../../molecules/feature-form";
 import QuillEditor from "../../atoms/quil-editor";
-import { DynamicIcon } from "../../atoms/dynamic-lucidev";
+import DropzoneImageUpload from "../../atoms/upload/dropzone-image-upload";
 
 interface IProps {
   onSuccess: () => void;
@@ -156,23 +156,6 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       });
   };
 
-  const handleChangeImage = (index: number, value: string) => {
-    const items = [...image];
-    items[index] = value;
-    setImage(items);
-    setImageError(null);
-  };
-
-  const handleAddImage = () => {
-    setImage([...image, ""]);
-    setImageError(null);
-  };
-
-  const handleRemoveImage = (index: number) => {
-    setImage(image.filter((_, idx) => idx !== index));
-    setImageError(null);
-  };
-
   const handleAction = () => {
     if (fnVal()) return;
     const imageUrls = image.map((url) => url.trim()).filter(Boolean);
@@ -265,7 +248,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
     const imageUrls = image.map((url) => url.trim()).filter(Boolean);
     if (imageUrls.length === 0) {
       hasError = true;
-      setImageError("Vui lòng nhập URL hình ảnh");
+      setImageError("Vui lòng tải hình ảnh");
     }
     if (isNullOrEmpty(metaName) || isNullOrEmpty((metaName || "").trim())) {
       hasError = true;
@@ -373,65 +356,16 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           />
         </div>
         <div className="col-span-12">
-          <div className="flex items-center justify-between gap-4">
-            <label className="text-sm text-black-02">URL hình ảnh</label>
-            <button
-              type="button"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-blue-1d px-3 text-sm text-white"
-              onClick={handleAddImage}
-            >
-              <DynamicIcon name="plus" size={16} color="#fff" />
-              Thêm ảnh
-            </button>
-          </div>
-          <div className="mt-2 flex flex-col gap-3">
-            {(image.length > 0 ? image : [""]).map((url, index) => (
-              <div className="grid grid-cols-12 gap-3" key={index}>
-                <div className="col-span-11">
-                  <InputField
-                    name={`image-${index}`}
-                    trim={false}
-                    value={url}
-                    error={index === 0 ? imageError : null}
-                    placeholder="https://..."
-                    onChange={(evt) => {
-                      handleChangeImage(index, evt.target.value);
-                    }}
-                  />
-                </div>
-                <div className="col-span-1 flex items-start">
-                  <button
-                    type="button"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-500 text-white disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={image.length === 0}
-                    onClick={() => handleRemoveImage(index)}
-                  >
-                    <DynamicIcon name="trash" size={16} color="#fff" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-          {image.map((url) => url.trim()).filter(Boolean).length > 0 && (
-            <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
-              {image
-                .map((url) => url.trim())
-                .filter(Boolean)
-                .map((url, index) => (
-                  <div className="rounded-lg border border-gray-200 bg-white p-2" key={`${url}-${index}`}>
-                    <img
-                      src={url}
-                      alt={`${name || "Preview sản phẩm"} ${index + 1}`}
-                      className="h-32 w-full rounded-md object-contain"
-                      onError={(event) => {
-                        event.currentTarget.style.display = "none";
-                        setImageError("Có URL hình ảnh không hiển thị được");
-                      }}
-                    />
-                  </div>
-                ))}
-            </div>
-          )}
+          <DropzoneImageUpload
+            maxFiles={10}
+            label="Hình ảnh"
+            listPreview={image}
+            error={imageError}
+            onChange={(urls) => {
+              setImage(urls);
+              setImageError(null);
+            }}
+          />
         </div>
 
         <div className="col-span-12">

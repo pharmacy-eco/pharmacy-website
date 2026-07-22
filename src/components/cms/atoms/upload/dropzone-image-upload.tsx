@@ -11,6 +11,7 @@ interface UploadImage {
   id: string;
   file: File | any;
   preview: string;
+  url?: string;
   status: "loading" | "uploaded" | "error";
 }
 
@@ -42,26 +43,65 @@ interface Props {
   maxFiles?: number;
   maxFileSizeMb?: number;
   listPreview?: string[];
+  label?: string;
+  error?: string | null;
   onUploaded?: (files: ICloudinary[]) => void;
+  onChange?: (urls: string[]) => void;
 }
 
-const DropzoneImageUpload: React.FC<Props> = ({ maxFiles = 5, maxFileSizeMb = 5, listPreview = [], onUploaded }) => {
+const getUploadedUrls = (items: UploadImage[]) =>
+  items
+    .filter((img) => img.status === "uploaded")
+    .map((img) => img.url || (!img.file ? img.preview : ""))
+    .filter(Boolean);
+
+const normalizeUploadedFiles = (files: any): ICloudinary[] => {
+  const items = Array.isArray(files) ? files : files ? [files] : [];
+
+  return items.map((item) => {
+    if (typeof item === "string") {
+      return {
+        url: item,
+        secure_url: item
+      } as ICloudinary;
+    }
+
+    return item;
+  });
+};
+
+const DropzoneImageUpload: React.FC<Props> = ({
+  maxFiles = 5,
+  maxFileSizeMb = 5,
+  listPreview = [],
+  label = "Tải ảnh",
+  error,
+  onUploaded,
+  onChange
+}) => {
   const [images, setImages] = useState<UploadImage[]>([]);
+  const previewKey = listPreview.filter(Boolean).join("|");
 
   useEffect(() => {
-    if (listPreview.length > 0) {
-      const mapped = listPreview.map((img) => ({
+    if (previewKey) {
+      const mapped = previewKey.split("|").map((img) => ({
         id: uuid(),
         file: null as any,
         preview: img,
+        url: img,
         status: "uploaded"
       }));
       setImages(mapped as any);
+    } else {
+      setImages([]);
     }
-  }, [listPreview]);
+  }, [previewKey]);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
+      const availableSlots = Math.max(maxFiles - images.length, 0);
+      if (availableSlots === 0) return;
+
       const validFiles: UploadImage[] = [];
       for (const file of acceptedFiles) {
         if (!file.type.startsWith("image/")) continue;
@@ -75,11 +115,14 @@ const DropzoneImageUpload: React.FC<Props> = ({ maxFiles = 5, maxFileSizeMb = 5,
         });
       }
 
-      const updated = [...images, ...validFiles].slice(0, maxFiles);
+      const filesToUpload = validFiles.slice(0, availableSlots);
+      if (filesToUpload.length === 0) return;
+
+      const updated = [...images, ...filesToUpload];
       setImages(updated);
-      await uploadImages(validFiles);
+      await uploadImages(filesToUpload);
     },
-    [images]
+    [images, maxFileSizeMb, maxFiles]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -92,7 +135,11 @@ const DropzoneImageUpload: React.FC<Props> = ({ maxFiles = 5, maxFileSizeMb = 5,
   });
 
   const removeImage = (id: string) => {
-    setImages((prev) => prev.filter((img) => img.id !== id));
+    setImages((prev) => {
+      const updated = prev.filter((img) => img.id !== id);
+      onChange?.(getUploadedUrls(updated));
+      return updated;
+    });
   };
 
   const uploadImages = async (files: UploadImage[]) => {
@@ -100,10 +147,18 @@ const DropzoneImageUpload: React.FC<Props> = ({ maxFiles = 5, maxFileSizeMb = 5,
     files.forEach((f) => payload.append("files", f.file));
     try {
       const res = await FileService.fnUploadFileImage(payload);
-      setImages((prev) =>
-        prev.map((img) => (files.find((f) => f.id === img.id) ? { ...img, status: "uploaded" } : img))
-      );
-      onUploaded?.(res?.data?.url || []);
+      const uploadedFiles = normalizeUploadedFiles(res?.data?.url || []);
+      setImages((prev) => {
+        const updated = prev.map((img) => {
+          const uploadedIndex = files.findIndex((f) => f.id === img.id);
+          const uploaded = uploadedFiles[uploadedIndex];
+
+          return uploadedIndex >= 0 ? { ...img, url: uploaded?.secure_url || uploaded?.url || img.preview, status: "uploaded" } : img;
+        });
+        onChange?.(getUploadedUrls(updated));
+        return updated;
+      });
+      onUploaded?.(uploadedFiles);
     } catch (error) {
       onUploaded?.([]);
       setImages((prev) => prev.map((img) => (files.find((f) => f.id === img.id) ? { ...img, status: "error" } : img)));
@@ -117,16 +172,22 @@ const DropzoneImageUpload: React.FC<Props> = ({ maxFiles = 5, maxFileSizeMb = 5,
 
   return (
     <div className="w-full">
-      <label className="block text-sm text-black-02 pb-1">Tải ảnh</label>
+      <label className="block text-sm text-black-02 pb-1">{label}</label>
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer ${
-          isDragActive ? "border-blue-400" : "border-[#eaf0f6]"
+          error ? "border-red-400" : isDragActive ? "border-blue-400" : "border-[#eaf0f6]"
         }`}
       >
         <input {...getInputProps()} />
         <p className="text-sm text-gray-600">Kéo và thả ảnh vào đây hoặc nhấn để chọn ảnh</p>
       </div>
+      {error && (
+        <div className="mt-1 flex gap-1 items-center">
+          <DynamicIcon name="circle-alert" size={16} color="#f87171" />
+          <p className="text-[13px] text-red-400">{error}</p>
+        </div>
+      )}
       <div className="flex flex-wrap gap-4 mt-4">
         {images.length > 0 &&
           images.map((img) => (

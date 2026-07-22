@@ -48,6 +48,7 @@
     "react-dropzone": "^14.3.8",
     "react-quill": "^2.0.0",
     "react-slick": "^0.30.3",
+    "recharts": "^3.9.2",
     "slick-carousel": "^1.8.1",
     "sonner": "^2.0.3",
     "tailwind-merge": "^2.3.0",

@@ -6,6 +6,7 @@ interface ICategory {
   type: string;
   slug: string;
   children: ICategory[];
+  countProduct?: number;
 }
 
 interface ICategoryBlog {

@@ -1,10 +1,14 @@
 import BreadcrumbAtom from "@/components/cms/atoms/breadcrumb-atom";
-import DashboardOverview from "@/components/cms/organisms/dashboard";
+import TOrders from "@/components/cms/templates/don-hang";
 
-export default function DashboardPage() {
+export default function Page() {
   const breadcrumb = [
     {
       label: "Dashboard",
+      href: "/cms/dashboard"
+    },
+    {
+      label: "Đơn hàng",
       href: null
     }
   ];
@@ -12,7 +16,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-4">
       <BreadcrumbAtom list={breadcrumb} />
-      <DashboardOverview />
+      <TOrders />
     </div>
   );
 }

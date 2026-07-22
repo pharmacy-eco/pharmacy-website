@@ -1,4 +1,4 @@
-import { IResponseData } from "./response";
+import { IResponseData, IResponsePagination } from "./response";
 interface Review {
   content: string;
   id: number;
@@ -48,6 +48,19 @@ interface IProductRecomment {
   }[];
 }
 
-type IProductResponse = IResponseData<IProduct>;
+interface IProductListItem {
+  id: number;
+  name: string;
+  meta_name: string;
+  slug: string;
+  thumbnail: string;
+  price: number;
+  current_price?: number;
+  curent_price?: number;
+  unit: string;
+}
 
-export type { IProductResponse, IProduct, Review, IProductRecomment };
+type IProductResponse = IResponseData<IProduct>;
+type IProductListResponse = IResponsePagination<IProductListItem>;
+
+export type { IProductResponse, IProductListResponse, IProduct, IProductListItem, Review, IProductRecomment };

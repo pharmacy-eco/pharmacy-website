@@ -52,6 +52,13 @@ export function getMenuList(pathname: string): Menu[] {
       submenus: []
     },
     {
+      href: "/cms/don-hang",
+      label: "Đơn hàng",
+      active: pathname.includes("/cms/don-hang"),
+      icon: "shopping-cart",
+      submenus: []
+    },
+    {
       href: "/cms/nguoi-dung",
       label: "Quản lý người dùng",
       active: pathname.includes("/cms/nguoi-dung"),

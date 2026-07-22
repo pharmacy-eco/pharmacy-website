@@ -71,13 +71,23 @@ interface IBlog {
   meta_description: string;
 }
 
+interface IBrand {
+  id: number;
+  name: string;
+  slug: string;
+  image: string;
+  meta_name: string;
+}
+
 interface IHome {
   product: Array<IProduct>;
   banner: Array<IBanner>;
   blogs: Array<IBlog>;
+  category: Array<ICategory>;
+  brands: Array<IBrand>;
 }
 
 type ICommonResponse = IResponseData<ICommon>;
 type IHomeResponse = IResponseData<IHome>;
 
-export type { IPagination, IApiEndpoint, ICommonResponse, ICommon, IHome, IHomeResponse, IProduct, IBanner, IBlog };
+export type { IPagination, IApiEndpoint, ICommonResponse, ICommon, IHome, IHomeResponse, IProduct, IBanner, IBlog, IBrand };

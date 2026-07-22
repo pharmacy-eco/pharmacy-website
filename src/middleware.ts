@@ -15,6 +15,7 @@ const CMS_ROUTES_PROTECTED = [
   "/cms/danh-muc",
   "/cms/quay-thuoc",
   "/cms/danh-gia",
+  "/cms/don-hang",
   "/cms/thong-tin-chung",
   "/cms/bai-dang",
   "/cms/cau-hinh",

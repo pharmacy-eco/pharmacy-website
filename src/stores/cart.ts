@@ -1,6 +1,6 @@
 // stores/useCartStore.ts
 import { http } from "@/lib/http";
-import { ICartItem, IPayloadOrder } from "@/types/web/cart";
+import { ICartItem, IOrderPaymentApiResponse, IPayloadOrder } from "@/types/web/cart";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -11,7 +11,7 @@ interface ICartStore {
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
   isCartOpen: boolean;
-  _sendFormOrder: (payload: IPayloadOrder) => Promise<any>;
+  _sendFormOrder: (payload: IPayloadOrder) => Promise<IOrderPaymentApiResponse>;
   setCartOpen: (isOpen: boolean) => void;
   clearCart: () => void;
 }
@@ -58,7 +58,7 @@ export const useCartStore = create<ICartStore>()(
       _sendFormOrder: async (payload: IPayloadOrder) => {
         const { _api } = get();
         const endpoint = _api.sendOrder;
-        return await http.post(endpoint, payload);
+        return await http.post<IPayloadOrder, IOrderPaymentApiResponse>(endpoint, payload);
       },
 
       clearCart: () => set({ cart: [] })

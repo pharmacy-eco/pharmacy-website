@@ -294,11 +294,9 @@ const DialogCategories = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => 
         <div className="flex-1 w-full">
           <DropzoneImageUpload
             maxFiles={1}
-            listPreview={type === "update" ? [image] : []}
-            onUploaded={(files) => {
-              if (files.length > 0) {
-                setImage(files[0].url);
-              }
+            listPreview={image ? [image] : []}
+            onChange={(urls) => {
+              setImage(urls[0] || "");
             }}
           />
         </div>

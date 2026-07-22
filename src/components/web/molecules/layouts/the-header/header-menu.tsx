@@ -16,7 +16,7 @@ const HeaderMenu: React.FC<IProps> = () => {
           {listMenu.map((item, idx) => {
             return (
               <div key={idx} className="inline-flex gap-2 items-center justify-center py-3 group relative">
-                <Link href={item.slug} className="inline-flex items-center gap-3 w-full">
+                <Link href={`/${item.slug}`} className="inline-flex items-center gap-3 w-full">
                   <span className="text-sm line-clamp-1 group-hover:text-blue-12">{item.name}</span>
                   {!!item.children.length && (
                     <DynamicIcon

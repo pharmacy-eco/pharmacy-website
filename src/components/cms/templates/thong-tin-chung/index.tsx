@@ -10,6 +10,7 @@ import SocialForm from "../../molecules/social-form";
 import ButtonRoot from "../../atoms/button-atom/button-root";
 import sonner from "../../atoms/sonner-atom";
 import common from "@/enums/common-text";
+import DropzoneImageUpload from "../../atoms/upload/dropzone-image-upload";
 
 interface IProps {}
 
@@ -49,9 +50,7 @@ const buildPayload = (data?: IGeneral): IGeneral => ({
   email: data?.email || "",
   logo: data?.logo || "",
   favicon: data?.favicon || "",
-  social: normalizeSocial(data?.social)
-    .map((item) => item.link)
-    .filter(Boolean),
+  social: normalizeSocial(data?.social).filter((item) => item.image || item.name || item.link),
   add_body: data?.add_body || "",
   meta_title: data?.meta_title || "",
   meta_keyword: data?.meta_keyword || "",
@@ -169,22 +168,20 @@ const TInfo: React.FC<IProps> = () => {
               setData({ ...data, email: evt.target.value });
             }}
           />
-          <InputField
-            name="logo"
-            label="Logo URL"
-            value={data?.logo || ""}
-            placeholder="https://..."
-            onChange={(evt) => {
-              setData({ ...data, logo: evt.target.value });
+          <DropzoneImageUpload
+            maxFiles={1}
+            label="Logo"
+            listPreview={data?.logo ? [data.logo] : []}
+            onChange={(urls) => {
+              setData({ ...data, logo: urls[0] || "" });
             }}
           />
-          <InputField
-            name="favicon"
-            label="Favicon URL"
-            value={data?.favicon || ""}
-            placeholder="https://..."
-            onChange={(evt) => {
-              setData({ ...data, favicon: evt.target.value });
+          <DropzoneImageUpload
+            maxFiles={1}
+            label="Favicon"
+            listPreview={data?.favicon ? [data.favicon] : []}
+            onChange={(urls) => {
+              setData({ ...data, favicon: urls[0] || "" });
             }}
           />
           <TextareaRoot

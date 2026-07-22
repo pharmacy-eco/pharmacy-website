@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { DynamicIcon } from "../../atoms/dynamic-lucidev";
 import InputField from "../../atoms/next-input/input-field";
 import { NextTextarea } from "../../atoms/next-textarea";
 import { ISocial } from "@/types/cms/general";
+import DropzoneImageUpload from "../../atoms/upload/dropzone-image-upload";
 
 interface IProps {
   items: ISocial[] | [];
@@ -20,7 +21,7 @@ const SocialForm: React.FC<IProps> = ({ className = "", items, label = "", onCha
     onChange(items.filter((_, i) => i !== index));
   };
 
-  const handleChange = (index: number, field: "name" | "link", value: string) => {
+  const handleChange = (index: number, field: "image" | "name" | "link", value: string) => {
     const updatedItems = [...items];
     updatedItems[index][field] = value;
     onChange(updatedItems);
@@ -32,15 +33,22 @@ const SocialForm: React.FC<IProps> = ({ className = "", items, label = "", onCha
       <div className="">
         {items.map((item, index) => {
           return (
-            <div className="flex gap-4 items-center my-2" key={index}>
-              {/* TODO: upload image */}
-              <InputField
-                name="name"
-                value={item.name}
-                placeholder={`Nhập tên ${label} ...`}
-                onChange={(e) => handleChange(index, "name", e.target.value)}
-              />
-              <div className="w-full">
+            <div className="my-2 grid grid-cols-12 gap-4 rounded-lg border border-gray-100 p-3" key={index}>
+              <div className="col-span-12 md:col-span-4">
+                <DropzoneImageUpload
+                  maxFiles={1}
+                  label="Ảnh"
+                  listPreview={item.image ? [item.image] : []}
+                  onChange={(urls) => handleChange(index, "image", urls[0] || "")}
+                />
+              </div>
+              <div className="col-span-12 flex flex-col gap-3 md:col-span-7">
+                <InputField
+                  name="name"
+                  value={item.name}
+                  placeholder={`Nhập tên ${label} ...`}
+                  onChange={(e) => handleChange(index, "name", e.target.value)}
+                />
                 <NextTextarea
                   name="value-feature"
                   rows={1}
@@ -49,8 +57,9 @@ const SocialForm: React.FC<IProps> = ({ className = "", items, label = "", onCha
                   onChange={(e) => handleChange(index, "link", e.target.value)}
                 />
               </div>
-              <div className="flex items-end h-full">
+              <div className="col-span-12 flex items-start md:col-span-1">
                 <button
+                  type="button"
                   onClick={() => handleRemove(index)}
                   className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700"
                 >
@@ -61,7 +70,7 @@ const SocialForm: React.FC<IProps> = ({ className = "", items, label = "", onCha
           );
         })}
       </div>
-      <button onClick={handleAdd} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+      <button type="button" onClick={handleAdd} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
         <DynamicIcon name="plus" size={16} color="#fff" />
       </button>
     </div>

@@ -20,8 +20,8 @@ const THome: React.FC<IProps> = ({ data }) => {
         <HomeSlider banners={data?.banner || []} />
         <HomeUtilities />
         <HomeFeaturedProduct products={data?.product || []} />
-        <HomeFeaturedCategories />
-        <HomeFeaturedBrand />
+        <HomeFeaturedCategories categories={data?.category || []} />
+        <HomeFeaturedBrand brands={data?.brands || []} />
         <HomeProgram />
         <HomeHealthCenter blogs={data?.blogs || []} />
       </div>

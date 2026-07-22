@@ -14,7 +14,7 @@ const HeaderMenuSub: React.FC<IProps> = ({ data }) => {
         return (
           <Link
             key={idx}
-            href={x.slug}
+            href={`/${x.slug}`}
             className="flex gap-3 items-center py-3 border-b border-[#e5e7eb] last:border-none"
           >
             <NextImg src={x.image} width={24} height={24} alt="Long Châu" />

@@ -25,6 +25,16 @@ interface IProduct {
   description: string;
   content?: string;
   unit: string;
+  expiry_date?: string;
+  expired_at?: string;
+  expiration_date?: string;
+  expires_at?: string;
+  expire_at?: string;
+  exp_date?: string;
+  stock?: number;
+  quantity?: number;
+  sold?: number;
+  sold_quantity?: number;
   meta_name: string;
   meta_description: string;
 }

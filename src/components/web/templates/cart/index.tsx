@@ -5,7 +5,7 @@ import ListProducts from "../../molecules/cart/list-products";
 import ActionCart from "../../molecules/cart/action-cart";
 import OrderForm from "../../molecules/cart/order-form";
 import BreadcrumbAtom from "@/components/cms/atoms/breadcrumb-atom";
-import { IPayloadOrder } from "@/types/web/cart";
+import { IPayloadOrder, PaymentMethodEnum } from "@/types/web/cart";
 import sonner from "@/components/cms/atoms/sonner-atom";
 import common from "@/enums/common-text";
 
@@ -24,12 +24,22 @@ const TCart: React.FC<IProps> = () => {
     address: "",
     phone: "",
     email: "",
+    payment_method: PaymentMethodEnum.CASH,
+    bankCode: "",
     note: ""
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePaymentMethodChange = (value: PaymentMethodEnum) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      payment_method: value,
+      bankCode: value === PaymentMethodEnum.VNPAY ? prev.bankCode : ""
+    }));
   };
 
   const handleSubmit = async () => {
@@ -42,7 +52,12 @@ const TCart: React.FC<IProps> = () => {
     }
     setLoading(true);
     const payload: IPayloadOrder = {
-      ...formData,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      payment_method: formData.payment_method,
+      ...(formData.bankCode ? { bankCode: formData.bankCode } : {}),
       cart: cart.map((item) => ({
         quantity: item.quantity,
         product_id: item.id,
@@ -51,12 +66,29 @@ const TCart: React.FC<IProps> = () => {
     };
     _sendFormOrder(payload)
       .then((res) => {
-        if (res.error.code >= 200 && res.error.code < 300) {
+        const responseCode = "error" in res ? res.error?.code : 200;
+
+        if (responseCode && responseCode >= 200 && responseCode < 300) {
+          const orderPayment = "data" in res ? res.data : res;
+          const paymentUrl = orderPayment?.payment_url;
+          const orderSuccessParams = new URLSearchParams();
+
+          if (orderPayment?.order_code) orderSuccessParams.set("order_code", orderPayment.order_code);
+          orderSuccessParams.set("payment_method", orderPayment?.payment_method || formData.payment_method);
+          orderSuccessParams.set("payment_status", orderPayment?.payment_status || "PENDING");
+
           sonner({
             type: "success",
             message: "Đặt hàng thành công!"
           });
+
+          if (formData.payment_method === PaymentMethodEnum.VNPAY && paymentUrl) {
+            window.location.assign(paymentUrl);
+            return;
+          }
+
           clearCart();
+          window.location.assign(`/dat-hang-thanh-cong?${orderSuccessParams.toString()}`);
         } else {
           sonner({
             type: "error",
@@ -90,7 +122,13 @@ const TCart: React.FC<IProps> = () => {
         <div className="flex flex-col lg:flex-row gap-4 mb-8">
           <div className="w-full lg:w-8/12">
             <ListProducts carts={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} order={order} />
-            {order && <OrderForm formData={formData} onChange={handleChange} />}
+            {order && (
+              <OrderForm
+                formData={formData}
+                onChange={handleChange}
+                onPaymentMethodChange={handlePaymentMethodChange}
+              />
+            )}
           </div>
           <div className="w-full lg:w-4/12">
             <ActionCart

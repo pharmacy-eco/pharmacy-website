@@ -1,5 +1,5 @@
 import BreadcrumbAtom from "@/components/cms/atoms/breadcrumb-atom";
-import TGeneral from "@/components/cms/templates/cau-hinh";
+import TInfo from "@/components/cms/templates/thong-tin-chung";
 
 export default function Page() {
   let breadcrumb = [
@@ -16,7 +16,7 @@ export default function Page() {
   return (
     <div className="flex flex-col gap-4">
       <BreadcrumbAtom list={breadcrumb} />
-      <TGeneral />
+      <TInfo />
     </div>
   );
 }

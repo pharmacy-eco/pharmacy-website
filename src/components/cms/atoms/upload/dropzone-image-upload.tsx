@@ -149,7 +149,7 @@ const DropzoneImageUpload: React.FC<Props> = ({
       const res = await FileService.fnUploadFileImage(payload);
       const uploadedFiles = normalizeUploadedFiles(res?.data?.url || []);
       setImages((prev) => {
-        const updated = prev.map((img) => {
+        const updated = prev.map<UploadImage>((img) => {
           const uploadedIndex = files.findIndex((f) => f.id === img.id);
           const uploaded = uploadedFiles[uploadedIndex];
 
@@ -161,7 +161,9 @@ const DropzoneImageUpload: React.FC<Props> = ({
       onUploaded?.(uploadedFiles);
     } catch (error) {
       onUploaded?.([]);
-      setImages((prev) => prev.map((img) => (files.find((f) => f.id === img.id) ? { ...img, status: "error" } : img)));
+      setImages((prev) =>
+        prev.map<UploadImage>((img) => (files.find((f) => f.id === img.id) ? { ...img, status: "error" } : img))
+      );
       sonner({
         type: "error",
         title: "Tải ảnh",

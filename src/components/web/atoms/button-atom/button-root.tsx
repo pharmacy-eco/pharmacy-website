@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,55 +30,52 @@ export interface IButtonRootProps extends React.ButtonHTMLAttributes<HTMLButtonE
   variant?: "solid" | "outline";
 }
 
-const ButtonRoot: React.FC<IButtonRootProps> = ({
-  loading = false,
-  color = "primary",
-  size = "medium",
-  variant = "solid",
-  children,
-  className,
-  disabled,
-  ...props
-}) => {
-  const classSize = {
-    small: "h-9 px-4 py-2 text-xs",
-    medium: "h-10 px-6 py-2 text-sm",
-    larger: "h-12 px-6 py-3 text-base"
-  } as const;
+const ButtonRoot = React.forwardRef<HTMLButtonElement, IButtonRootProps>(
+  (
+    { loading = false, color = "primary", size = "medium", variant = "solid", children, className, disabled, ...props },
+    ref
+  ) => {
+    const classSize = {
+      small: "h-9 px-4 py-2 text-xs",
+      medium: "h-10 px-6 py-2 text-sm",
+      larger: "h-12 px-6 py-3 text-base"
+    } as const;
 
-  const classColor = {
-    primary: cn({
-      "bg-blue-12 text-white hover:bg-blue-12": variant === "solid",
-      "bg-white text-blue-12 border border-blue-12 hover:bg-transparent": variant === "outline"
-    }),
-    success: cn({
-      "bg-green-500 text-white hover:bg-green-600": variant === "solid",
-      "bg-white text-green-500 border border-green-500 hover:bg-transparent": variant === "outline"
-    }),
-    error: cn({
-      "bg-red-500 text-white hover:bg-red-600": variant === "solid",
-      "bg-white text-red-500 border border-red-500 hover:bg-transparent": variant === "outline"
-    })
-  } as const;
+    const classColor = {
+      primary: cn({
+        "bg-blue-12 text-white hover:bg-blue-12": variant === "solid",
+        "bg-white text-blue-12 border border-blue-12 hover:bg-transparent": variant === "outline"
+      }),
+      success: cn({
+        "bg-green-500 text-white hover:bg-green-600": variant === "solid",
+        "bg-white text-green-500 border border-green-500 hover:bg-transparent": variant === "outline"
+      }),
+      error: cn({
+        "bg-red-500 text-white hover:bg-red-600": variant === "solid",
+        "bg-white text-red-500 border border-red-500 hover:bg-transparent": variant === "outline"
+      })
+    } as const;
 
-  return (
-    <Button
-      disabled={disabled || loading}
-      className={cn(
-        "relative inline-flex items-center justify-center gap-2 rounded-full transition-all duration-300",
-        classSize[size],
-        classColor[color],
-        className
-      )}
-      {...props}
-    >
-      <AnimatePresence>{loading && <LoadingSpinner type={variant} key="spinner" />}</AnimatePresence>
-      <div className={cn("inline-flex items-center", { "opacity-90": loading, "transition-opacity": true })}>
-        {children}
-      </div>
-    </Button>
-  );
-};
+    return (
+      <Button
+        ref={ref}
+        disabled={disabled || loading}
+        className={cn(
+          "relative inline-flex items-center justify-center gap-2 rounded-full transition-all duration-300",
+          classSize[size],
+          classColor[color],
+          className
+        )}
+        {...props}
+      >
+        <AnimatePresence>{loading && <LoadingSpinner type={variant} key="spinner" />}</AnimatePresence>
+        <div className={cn("inline-flex items-center", { "opacity-90": loading, "transition-opacity": true })}>
+          {children}
+        </div>
+      </Button>
+    );
+  }
+);
 
 ButtonRoot.displayName = "ButtonRoot";
 export default ButtonRoot;

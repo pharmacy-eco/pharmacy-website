@@ -6,4 +6,17 @@ type IRequestPagination<T extends Record<string, any>> = T & {
   order?: "asc" | "desc";
 };
 
-export type { IRequestPagination };
+interface UserLoginRequest {
+  username: string;
+  password: string;
+}
+
+interface UserRegisterRequest {
+  name: string;
+  phone: string;
+  email?: string;
+  address: string;
+  password: string;
+}
+
+export type { IRequestPagination, UserLoginRequest, UserRegisterRequest };

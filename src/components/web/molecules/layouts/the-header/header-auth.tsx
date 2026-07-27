@@ -32,13 +32,13 @@ const HeaderAuth: React.FC<IProps> = () => {
   const setCartOpen = useCartStore((state) => state.setCartOpen);
   const totalQuantity = useCartStore((state) => state.cart.length);
   return (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-2 md:gap-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <ButtonRoot
             variant="outline"
-            size="larger"
-            className="w-10 h-10 md:w-auto md:h-[50px] p-0 md:px-5 inline-flex items-center hover:bg-white"
+            size="medium"
+            className="h-10 w-10 p-0 hover:bg-white md:h-11 md:w-auto md:px-4"
           >
             <DynamicIcon name="user-round" size="20" className="w-4 h-4 md:w-5 md:h-5" />
             <span className="hidden md:inline-block pl-2">Tài khoản</span>
@@ -79,11 +79,7 @@ const HeaderAuth: React.FC<IProps> = () => {
         </DropdownMenuContent>
       </DropdownMenu>
       <div className="group relative" onMouseEnter={() => setCartOpen(true)}>
-        <ButtonRoot
-          size="larger"
-          className="w-10 h-10 md:w-auto md:h-[50px] p-0 md:px-6 inline-flex items-center "
-          onClick={handleCart}
-        >
+        <ButtonRoot size="medium" className="h-10 w-10 p-0 md:h-11 md:w-auto md:px-4" onClick={handleCart}>
           <DynamicIcon name="shopping-cart" size="20" className="w-4 h-4 md:w-5 md:h-5" />
           <span className="hidden md:inline-block pl-2">Giỏ hàng</span>
           {isCLient && totalQuantity > 0 && (

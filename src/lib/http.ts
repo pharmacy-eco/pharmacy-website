@@ -40,7 +40,9 @@ class Http {
 
     http.interceptors.request.use(
       (config) => {
-        const token = getCookie(E_KEY_COOKIE.access_token);
+        const token =
+          getCookie(E_KEY_COOKIE.access_token) ||
+          (typeof window !== "undefined" ? window.localStorage.getItem(E_KEY_COOKIE.access_token) : null);
 
         if (token) {
           config.headers["Accept"] = "application/json";

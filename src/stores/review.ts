@@ -8,6 +8,7 @@ interface ReviewStore {
     sendReview: string;
     listReview: IApiEndpoint;
     updateReview: IApiEndpoint;
+    updateStatusReview: IApiEndpoint;
     deleteReview: IApiEndpoint;
   };
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface ReviewStore {
   _sendFormReview: (payload: any) => Promise<any>;
   _fnGetListReview: (_?: string) => Promise<IReviewListResponse | undefined>;
   _fnGetUpdateReview: (_id: number, _payload: Partial<ReviewsListDto>) => Promise<IReviewResponse | undefined>;
+  _fnGetUpdateStatusReview: (_id: number) => Promise<IReviewResponse | undefined>;
   _fnGetDeleteReview: (_id: number) => Promise<IReviewResponse | undefined>;
 }
 
@@ -30,6 +32,10 @@ export const useReviewStore = create<ReviewStore>((set, get) => ({
     },
     updateReview: {
       url: "/reviews/{id}",
+      method: "PUT"
+    },
+    updateStatusReview: {
+      url: "/reviews/status/{id}",
       method: "PUT"
     },
     deleteReview: {
@@ -53,6 +59,11 @@ export const useReviewStore = create<ReviewStore>((set, get) => ({
     const { _api } = get();
     const endpoint = _api.updateReview.url.replace("{id}", String(id));
     return await http.put<any, IReviewResponse>(endpoint, payload);
+  },
+  _fnGetUpdateStatusReview: async (id: number) => {
+    const { _api } = get();
+    const endpoint = _api.updateStatusReview.url.replace("{id}", String(id));
+    return await http.put<any, IReviewResponse>(endpoint);
   },
   _fnGetDeleteReview: async (id) => {
     const { _api } = get();

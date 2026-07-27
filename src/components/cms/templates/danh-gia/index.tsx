@@ -67,7 +67,6 @@ const TReviews: React.FC<IProps> = () => {
               name="status"
               value={String(status)}
               options={[
-                { label: "Khóa", value: "0" },
                 { label: "Hoạt động", value: "1" },
                 { label: "Chờ duyệt", value: "2" }
               ]}

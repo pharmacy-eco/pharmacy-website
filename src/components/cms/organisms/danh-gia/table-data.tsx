@@ -34,7 +34,7 @@ const getStatusType = (status: number): StatusType => {
 const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
   const refDialogDelete = useRef<IRefDialogDelete | null>(null);
   const [loadingId, setLoadingId] = useState<number | null>(null);
-  const { _fnGetUpdateReview } = useReviewStore();
+  const { _fnGetUpdateStatusReview } = useReviewStore();
 
   const getItemIndex = (item: ReviewsListDto) => {
     return (pagination.pageIndex - 1) * pagination.pageSize + data.indexOf(item) + 1;
@@ -42,7 +42,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
 
   const handleUpdateStatus = (item: ReviewsListDto, status: number) => {
     setLoadingId(item.id);
-    _fnGetUpdateReview(item.id, { ...item, status })
+    _fnGetUpdateStatusReview(item.id)
       .then(() => {
         onRefresh();
         sonner({

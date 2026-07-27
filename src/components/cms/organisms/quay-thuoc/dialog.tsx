@@ -14,6 +14,7 @@ import { IProperty } from "@/types/cms/product";
 import FeatureForm from "../../molecules/feature-form";
 import QuillEditor from "../../atoms/quil-editor";
 import DropzoneImageUpload from "../../atoms/upload/dropzone-image-upload";
+import SearchableSelectField from "../../atoms/select-atom/searchable-select-field";
 
 interface IProps {
   onSuccess: () => void;
@@ -373,14 +374,14 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
         </div>
 
         <div className="col-span-4">
-          <SelectField
+          <SearchableSelectField
             name="category_id"
             label="Danh mục"
-            className="w-full"
             value={categoryID}
             error={categoryError}
             options={lstCategory}
             placeholder="-- Chọn danh mục --"
+            searchPlaceholder="Tìm danh mục..."
             onValueChange={(val) => {
               setCategoryID(val);
               setCategoryError(null);

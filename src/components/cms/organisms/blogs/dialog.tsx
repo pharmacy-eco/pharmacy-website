@@ -5,6 +5,7 @@ import DialogForm from "../../atoms/next-dialog/dialog-form";
 import InputField from "../../atoms/next-input/input-field";
 import { isNullOrEmpty } from "@/utils/validate";
 import SelectField from "../../atoms/select-atom/select-field";
+import SearchableSelectField from "../../atoms/select-atom/searchable-select-field";
 import { useBlogStore } from "@/stores/blog";
 import { useCategoryStore } from "@/stores/category";
 import sonner from "../../atoms/sonner-atom";
@@ -259,13 +260,14 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           />
         </div>
         <div className="col-span-12 md:col-span-4">
-          <SelectField
+          <SearchableSelectField
             name="category_id"
             label="Danh mục"
             value={categoryID}
             error={categoryIDError}
             options={lstCategory}
             placeholder="-- Chọn danh mục --"
+            searchPlaceholder="Tìm danh mục..."
             onValueChange={(val) => {
               setCategoryID(val);
               setCategoryIDError(null);

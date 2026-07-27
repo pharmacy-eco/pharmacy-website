@@ -36,6 +36,7 @@ const TCategories: React.FC<IProps> = () => {
       pageSize: pagination.pageSize,
       pageIndex: pagination.pageIndex
     };
+    console.log(params);
     let url = new URLSearchParams(params as any).toString();
     _fnGetListCategory(url)
       .then((res) => {

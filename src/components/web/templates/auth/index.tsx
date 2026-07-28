@@ -79,12 +79,27 @@ const AuthTemplate: React.FC<IProps> = ({ mode }) => {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  const formatMessage = (message: unknown): string | undefined => {
+    if (!message) return undefined;
+    if (typeof message === "string") return message;
+    if (Array.isArray(message)) {
+      const messages = message.map(formatMessage).filter(Boolean);
+      return messages.length ? messages.join(", ") : undefined;
+    }
+    if (typeof message === "object") {
+      const messages = Object.values(message).map(formatMessage).filter(Boolean);
+      return messages.length ? messages.join(", ") : undefined;
+    }
+    return String(message);
+  };
+
   const getErrorMessage = (error: unknown) => {
-    const response = (error as { response?: { data?: { error?: { message?: string }; message?: string } } })?.response;
+    const response = (error as { response?: { data?: { error?: { message?: unknown }; message?: unknown } } })?.response;
     return (
-      response?.data?.error?.message ||
-      response?.data?.message ||
-      (error instanceof Error ? error.message : "Có lỗi xảy ra, vui lòng thử lại.")
+      formatMessage(response?.data?.error?.message) ||
+      formatMessage(response?.data?.message) ||
+      formatMessage(error instanceof Error ? error.message : error) ||
+      "Có lỗi xảy ra, vui lòng thử lại."
     );
   };
 

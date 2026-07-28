@@ -32,7 +32,7 @@ const ListProducts: React.FC<IProps> = ({ carts, order, updateQuantity, removeFr
               </div>
             </div>
             <div className="flex items-center mt-2 justify-between w-full md:w-auto">
-              <div className="text-blue-600 font-semibold w-28 text-right">{item.price.toLocaleString()}đ</div>
+              <div className="text-blue-600 font-semibold w-28 text-right">{item.current_price.toLocaleString()}đ</div>
               <div className="flex items-center rounded px-2 mx-4">
                 {!order ? (
                   <InputNumber

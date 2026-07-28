@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import ButtonRoot from "@/components/web/atoms/button-atom/button-root";
 import BreadcrumbAtom from "@/components/web/atoms/breadcrumb-atom";
@@ -10,12 +10,56 @@ import { cn } from "@/lib/utils";
 
 type AccountPage = "orders" | "profile";
 
+type ProfileFormState = {
+  name: string;
+  phone: string;
+  email: string;
+  birthday: string;
+  address: string;
+};
+
+type StoredUser = {
+  fullname?: string;
+  name?: string;
+  username?: string;
+  phone?: string;
+  email?: string;
+  birthday?: string;
+  address?: string;
+};
+
 interface AccountShellProps {
   active: AccountPage;
   title: string;
   description: string;
   children: React.ReactNode;
 }
+
+const USER_STORAGE_KEY = "user";
+
+const initialProfileForm: ProfileFormState = {
+  name: "",
+  phone: "",
+  email: "",
+  birthday: "",
+  address: ""
+};
+
+const normalizeDateInput = (date?: string) => {
+  if (!date) return "";
+  return date.includes("T") ? date.split("T")[0] : date;
+};
+
+const getStoredUser = (): StoredUser | null => {
+  const storedUser = window.localStorage.getItem(USER_STORAGE_KEY);
+  if (!storedUser) return null;
+
+  try {
+    return JSON.parse(storedUser) as StoredUser;
+  } catch {
+    return null;
+  }
+};
 
 const accountMenu = [
   {
@@ -33,6 +77,13 @@ const accountMenu = [
 ] as const;
 
 const AccountShell: React.FC<AccountShellProps> = ({ active, title, description, children }) => {
+  const [accountName, setAccountName] = useState("");
+
+  useEffect(() => {
+    const user = getStoredUser();
+    setAccountName(user?.fullname || user?.name || user?.username || user?.phone || "");
+  }, []);
+
   return (
     <main className="bg-blue-ea">
       <div className="container py-6 md:py-8">
@@ -54,7 +105,7 @@ const AccountShell: React.FC<AccountShellProps> = ({ active, title, description,
                 <DynamicIcon name="user-round" className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-blue-12">Tài khoản</p>
+                <p className="text-sm font-semibold text-blue-12">{accountName || "Tài khoản"}</p>
                 <p className="text-xs text-black-02">Khách hàng Medicare</p>
               </div>
             </div>
@@ -112,11 +163,44 @@ const OrdersTemplate = () => {
 };
 
 const ProfileTemplate = () => {
+  const [form, setForm] = useState<ProfileFormState>(initialProfileForm);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (!user) return;
+
+    setForm({
+      name: user.fullname || user.name || "",
+      phone: user.phone || user.username || "",
+      email: user.email || "",
+      birthday: normalizeDateInput(user.birthday),
+      address: user.address || ""
+    });
+  }, []);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setMessage("");
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMessage("Thông tin đã được nhập trên giao diện. Bạn có thể nối API lưu hồ sơ ở bước tiếp theo.");
+    const currentUser = getStoredUser() || {};
+
+    window.localStorage.setItem(
+      USER_STORAGE_KEY,
+      JSON.stringify({
+        ...currentUser,
+        fullname: form.name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        birthday: form.birthday,
+        address: form.address.trim()
+      })
+    );
+    setMessage("Thông tin đã được lưu tạm trên trình duyệt. Bạn có thể nối API lưu hồ sơ ở bước tiếp theo.");
   };
 
   return (
@@ -126,12 +210,41 @@ const ProfileTemplate = () => {
       description="Cập nhật thông tin liên hệ dùng cho đặt hàng và nhận tư vấn."
     >
       <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
-        <InputField name="name" label="Họ và tên" placeholder="Nhập họ và tên" autoComplete="name" />
-        <InputField name="phone" label="Số điện thoại" placeholder="Nhập số điện thoại" autoComplete="tel" />
-        <InputField name="email" type="email" label="Email" placeholder="Nhập email" autoComplete="email" />
-        <InputField name="birthday" type="date" label="Ngày sinh" />
+        <InputField
+          name="name"
+          label="Họ và tên"
+          placeholder="Nhập họ và tên"
+          autoComplete="name"
+          value={form.name}
+          onChange={handleChange}
+        />
+        <InputField
+          name="phone"
+          label="Số điện thoại"
+          placeholder="Nhập số điện thoại"
+          autoComplete="tel"
+          inputMode="tel"
+          value={form.phone}
+          onChange={handleChange}
+        />
+        <InputField
+          name="email"
+          type="email"
+          label="Email"
+          placeholder="Nhập email"
+          autoComplete="email"
+          value={form.email}
+          onChange={handleChange}
+        />
+        <InputField name="birthday" type="date" label="Ngày sinh" value={form.birthday} onChange={handleChange} />
         <div className="md:col-span-2">
-          <InputField name="address" label="Địa chỉ" placeholder="Nhập địa chỉ nhận hàng" />
+          <InputField
+            name="address"
+            label="Địa chỉ"
+            placeholder="Nhập địa chỉ nhận hàng"
+            value={form.address}
+            onChange={handleChange}
+          />
         </div>
         <div className="flex flex-col gap-3 md:col-span-2 md:flex-row md:items-center">
           <ButtonRoot type="submit">

@@ -45,7 +45,7 @@ const HomeHealthCenter: React.FC<IProps> = ({ blogs }) => {
                 <NextImg
                   width={200}
                   height={200}
-                  src=""
+                  src={x.image || ""}
                   alt={x.title}
                   className="absolute w-full h-full object-cover"
                 />

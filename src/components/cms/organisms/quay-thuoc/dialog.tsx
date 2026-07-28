@@ -15,6 +15,8 @@ import FeatureForm from "../../molecules/feature-form";
 import QuillEditor from "../../atoms/quil-editor";
 import DropzoneImageUpload from "../../atoms/upload/dropzone-image-upload";
 import SearchableSelectField from "../../atoms/select-atom/searchable-select-field";
+import { useProductionBatchStore } from "@/stores/production-batch";
+import { IProductionBatch } from "@/types/cms/production-batch";
 
 interface IProps {
   onSuccess: () => void;
@@ -38,8 +40,10 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
   const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [isHot, setIsHot] = useState<string>("0");
   const [categoryID, setCategoryID] = useState<string>("");
+  const [productionBatchID, setProductionBatchID] = useState<string>("");
   const [property, setProperty] = useState<IProperty[]>([]);
   const [lstCategory, setListCategory] = useState<{ value: string; label: string }[] | []>([]);
+  const [productionBatchOptions, setProductionBatchOptions] = useState<{ value: string; label: string }[]>([]);
 
   const [status, setStatus] = useState<string>("1");
   const [image, setImage] = useState<string[]>([]);
@@ -53,6 +57,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [priceError, setPriceError] = useState<string | null>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [productionBatchError, setProductionBatchError] = useState<string | null>(null);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [contentError, setContentError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -61,6 +66,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
 
   const { _fnGetListCategory } = useCategoryStore();
   const { _fnGetCreateProduct, _fnGetUpdateProduct, _fnGetDetailProduct } = useProductStore();
+  const { _fnGetListProductionBatch } = useProductionBatchStore();
 
   const getDetailCategoryID = (data: any) => {
     if (Array.isArray(data?.category_id)) return String(data.category_id[0] || "");
@@ -114,7 +120,10 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
   };
 
   useEffect(() => {
-    if (open) fnFetchListCategory();
+    if (open) {
+      fnFetchListCategory();
+      fnFetchListProductionBatch();
+    }
   }, [open]);
 
   useEffect(() => {
@@ -125,6 +134,15 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           setName(data?.name || "");
           setStatus(String(data?.status ?? "1"));
           setCategoryID(getDetailCategoryID(data));
+          const detailProductionBatchID = String(data?.production_batch_id || data?.production_batch?.id || "");
+          const detailProductionBatchName = data?.production_batch?.name;
+          setProductionBatchID(detailProductionBatchID);
+          if (detailProductionBatchID && detailProductionBatchName) {
+            setProductionBatchOptions((prev) => {
+              if (prev.some((option) => option.value === detailProductionBatchID)) return prev;
+              return [...prev, { value: detailProductionBatchID, label: detailProductionBatchName }];
+            });
+          }
           setProperty(getDetailOptionals(data));
           setDescription(data?.description || "");
           setContent(data?.content || "");
@@ -157,6 +175,33 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       });
   };
 
+  const fnFetchListProductionBatch = () => {
+    const params = new URLSearchParams({
+      status: "1",
+      pageIndex: "1",
+      pageSize: "1000",
+      "sort[field]": "expiration_date",
+      "sort[order]": "asc"
+    });
+
+    _fnGetListProductionBatch(params.toString())
+      .then((res) => {
+        const options = (res.data.items || []).map((item: IProductionBatch) => ({
+          label: `${item.name} - HSD ${item.expiration_date} - SL ${item.quantity.toLocaleString("vi-VN")}`,
+          value: String(item.id)
+        }));
+        setProductionBatchOptions((prev) => {
+          const selectedOption = prev.find((option) => option.value === productionBatchID);
+          if (!selectedOption || options.some((option) => option.value === selectedOption.value)) return options;
+          return [...options, selectedOption];
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        setProductionBatchOptions([]);
+      });
+  };
+
   const handleAction = () => {
     if (fnVal()) return;
     const imageUrls = image.map((url) => url.trim()).filter(Boolean);
@@ -174,47 +219,54 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
       meta_name: metaName,
       meta_description: metaDescription,
       optionals: property,
+      production_batch_id: Number(productionBatchID),
       status: Number(status)
     };
     setLoading(true);
     if (type === "create") {
       _fnGetCreateProduct(payload)
-        .then(() => {
+        .then((response) => {
+          if (response?.error?.code !== 201) {
+            throw new Error(response?.error?.message || "Không thể tạo sản phẩm");
+          }
           onSuccess();
           fnClear();
+          setOpen(false);
           sonner({
             type: "success",
             message: "Tạo sản phẩm thành công"
           });
         })
-        .catch(() => {
+        .catch((error) => {
           sonner({
             type: "error",
-            message: common["error.sonner.500"]
+            message: error?.message || common["error.sonner.500"]
           });
         })
         .finally(() => {
-          setOpen(false);
           setLoading(false);
         });
     } else {
       _fnGetUpdateProduct(id, payload)
-        .then(() => {
+        .then((response) => {
+          if (response?.error?.code !== 200) {
+            throw new Error(response?.error?.message || "Không thể cập nhật sản phẩm");
+          }
           onSuccess();
           fnClear();
+          setOpen(false);
           sonner({
             type: "success",
             message: "Cập nhật sản phẩm thành công"
           });
         })
-        .catch(() => {
+        .catch((error) => {
           sonner({
             type: "error",
-            message: common["error.sonner.500"]
+            message: error?.message || common["error.sonner.500"]
           });
         })
         .finally(() => {
-          setOpen(false);
           setLoading(false);
         });
     }
@@ -233,6 +285,10 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
     if (isNullOrEmpty(categoryID) || isNullOrEmpty((categoryID || "").trim())) {
       hasError = true;
       setCategoryError("Vui lòng chọn danh mục");
+    }
+    if (!productionBatchID) {
+      hasError = true;
+      setProductionBatchError("Vui lòng chọn lô sản xuất");
     }
     if (isNullOrEmpty(description) || isNullOrEmpty((description || "").trim())) {
       hasError = true;
@@ -270,6 +326,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
     setName("");
     setStatus("1");
     setCategoryID("");
+    setProductionBatchID("");
     setProperty([]);
     setImage([]);
     setPrice(0);
@@ -285,6 +342,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
     setStatusError(null);
     setPriceError(null);
     setCategoryError(null);
+    setProductionBatchError(null);
     setImageError(null);
     setDescriptionError(null);
     setContentError(null);
@@ -373,7 +431,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
           <FeatureForm label="Thuộc tính" items={property} onChange={setProperty} />
         </div>
 
-        <div className="col-span-4">
+        <div className="col-span-12 md:col-span-6">
           <SearchableSelectField
             name="category_id"
             label="Danh mục"
@@ -388,7 +446,23 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
             }}
           />
         </div>
-        <div className="col-span-4">
+        <div className="col-span-12 md:col-span-6">
+          <SearchableSelectField
+            name="production_batch_id"
+            label="Lô sản xuất"
+            value={productionBatchID}
+            error={productionBatchError}
+            options={productionBatchOptions}
+            placeholder="-- Chọn lô sản xuất --"
+            searchPlaceholder="Tìm lô sản xuất..."
+            emptyText="Không có lô sản xuất đang hoạt động"
+            onValueChange={(value) => {
+              setProductionBatchID(value);
+              setProductionBatchError(null);
+            }}
+          />
+        </div>
+        <div className="col-span-12 md:col-span-6">
           <SelectField
             name="is_hot"
             label="Sản phẩm nổi bật"
@@ -406,7 +480,7 @@ const DialogProducts = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
             onValueChange={setIsHot}
           />
         </div>
-        <div className="col-span-4">
+        <div className="col-span-12 md:col-span-6">
           <InputField
             name="unit"
             label="Đơn vị sản phẩm"

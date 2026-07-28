@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart";
 
 type CardProductItem = IProduct & {
+  curent_price?: number;
   productImage?: {
     id: number;
     url: string;
@@ -25,6 +26,7 @@ const CardProduct: React.FC<IProps> = ({ item }) => {
   const setCartOpen = useCartStore((state) => state.setCartOpen);
   const productHref = item?.slug ? `/san-pham/${item.slug}` : "";
   const imageSrc = item?.thumbnail || item?.productImage?.[0]?.url || "";
+  const currentPrice = item?.current_price ?? item?.curent_price ?? 0;
 
   const handleOpenProduct = () => {
     if (!productHref) return;
@@ -47,7 +49,7 @@ const CardProduct: React.FC<IProps> = ({ item }) => {
       name: item.name,
       image: imageSrc,
       price: item.price || 0,
-      current_price: item.current_price || 0,
+      current_price: currentPrice,
       quantity: 1
     });
     setCartOpen(true);
@@ -81,7 +83,7 @@ const CardProduct: React.FC<IProps> = ({ item }) => {
           <div className="flex flex-col gap-0 pt-4">
             <div className="flex gap-1 items-center">
               <span className="text-base font-semibold text-blue-12">
-                {formatNumber(item?.current_price || 0) + "đ"}
+                {formatNumber(currentPrice) + "đ"}
               </span>
               <span className="text-sm text-blue-12">/</span>
               <span className="text-sm text-blue-12 font-normal">Hộp</span>

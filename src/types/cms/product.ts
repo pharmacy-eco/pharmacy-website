@@ -6,6 +6,15 @@ interface IProperty {
   value: string;
 }
 
+interface IProductProductionBatch {
+  id: number;
+  name: string;
+  manufacturing_date?: string;
+  expiration_date?: string;
+  quantity?: number;
+  production_place?: string;
+}
+
 interface IProduct {
   id?: number;
   name: string;
@@ -13,6 +22,8 @@ interface IProduct {
   image: string[];
   category?: number[] | string[] | string;
   category_id?: number | string | Array<number | string>;
+  production_batch_id: number;
+  production_batch?: IProductProductionBatch | null;
   created_at?: string;
   updated_at?: string;
   price: number;
@@ -47,4 +58,11 @@ type IProductResponse = IResponseData<IProduct>;
 type IProductListResponse = IResponsePagination<IProduct>;
 type IProductRequest = IRequestPagination<IProductFilter>;
 
-export type { IProduct, IProductResponse, IProductListResponse, IProductRequest, IProperty };
+export type {
+  IProduct,
+  IProductListResponse,
+  IProductProductionBatch,
+  IProductRequest,
+  IProductResponse,
+  IProperty
+};

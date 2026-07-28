@@ -49,6 +49,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
             <TableHead>Giá gốc</TableHead>
             <TableHead>Giá hiện tại</TableHead>
             <TableHead>Danh mục</TableHead>
+            <TableHead>Lô sản xuất</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead className="w-[200px]">Chức năng</TableHead>
           </TableRow>
@@ -74,6 +75,7 @@ const TableData: React.FC<IProps> = ({ data, pagination, onRefresh }) => {
               <TableCell className="font-medium">{formatNumber(item.price)}đ</TableCell>
               <TableCell className="font-medium">{formatNumber(item.current_price || item.price)}đ</TableCell>
               <TableCell className="font-medium">{getCategoryText(item.category)}</TableCell>
+              <TableCell className="font-medium">{item.production_batch?.name || "-"}</TableCell>
               <TableCell className="">
                 <BlockRoot
                   type={item.status === 1 ? "success" : "error"}

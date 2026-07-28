@@ -67,7 +67,7 @@ const HeaderCart: React.FC<IProps> = () => {
               <Label className="font-normal text-sm text-wrap line-clamp-2">{item.name}</Label>
               <div className="flex justify-between items-center mt-1">
                 <div className="flex items-center gap-1">
-                  <div className="text-blue-600 font-semibold text-right">{item.price.toLocaleString()}đ</div>
+                  <div className="text-blue-600 font-semibold text-right">{item.current_price.toLocaleString()}đ</div>
                   <span className="flex items-center">
                     <DynamicIcon name="x" size={14} color="#2563eb" />
                     {item.quantity}

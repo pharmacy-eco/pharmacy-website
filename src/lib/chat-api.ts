@@ -1,14 +1,38 @@
-export type ChatConversationId = number | string;
+export interface ChatHistoryDto {
+  role: "user" | "model";
+  text: string;
+}
 
-export type SendChatMessagePayload = {
+export interface ChatMessageDto {
   message: string;
-  conversationId?: ChatConversationId;
-};
+  api_key_id?: number;
+  history?: ChatHistoryDto[];
+  system_instruction?: string;
+}
 
-export type SendChatMessageResponse = {
-  reply: string;
-  conversationId: ChatConversationId;
-};
+export interface ChatResponseDto {
+  message: string;
+  model: string;
+  api_key_id: number;
+  usage: {
+    prompt_token_count: number;
+    candidates_token_count: number;
+    total_token_count: number;
+    token_quota: number;
+    token_used: number;
+    token_remaining: number;
+  };
+}
+
+interface ApiResponse<T> {
+  requestId: string;
+  at: string;
+  error: {
+    code: number;
+    message: string;
+  };
+  data?: T;
+}
 
 const getApiBaseUrl = () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -21,9 +45,9 @@ const getApiBaseUrl = () => {
 };
 
 export async function sendAIChatMessage(
-  payload: SendChatMessagePayload
-): Promise<SendChatMessageResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/ai-chat/send`, {
+  payload: ChatMessageDto
+): Promise<ChatResponseDto> {
+  const response = await fetch(`${getApiBaseUrl()}/chat/message`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -35,5 +59,11 @@ export async function sendAIChatMessage(
     throw new Error("Unable to send chat message");
   }
 
-  return response.json();
+  const responseBody = (await response.json()) as ApiResponse<ChatResponseDto>;
+
+  if (responseBody.error?.code || !responseBody.data) {
+    throw new Error(responseBody.error?.message || "Unable to send chat message");
+  }
+
+  return responseBody.data;
 }

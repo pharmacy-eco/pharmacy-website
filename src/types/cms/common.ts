@@ -6,7 +6,7 @@ interface IPagination {
 }
 
 interface IApiEndpoint {
-  method: "GET" | "POST" | "PUT" | "DELETE";
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   url: string;
 }
 

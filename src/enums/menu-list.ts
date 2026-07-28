@@ -73,6 +73,13 @@ export function getMenuList(pathname: string): Menu[] {
       submenus: []
     },
     {
+      href: "/cms/api-keys",
+      label: "Quản lý API Key",
+      active: pathname.includes("/cms/api-keys"),
+      icon: "key-round",
+      submenus: []
+    },
+    {
       href: "/cms/thong-tin-chung",
       label: "Quản lý thông tin",
       active: pathname.includes("/cms/thong-tin-chung"),

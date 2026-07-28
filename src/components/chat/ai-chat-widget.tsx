@@ -20,7 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { sendAIChatMessage } from "@/lib/chat-api";
-import type { ChatConversationId } from "@/lib/chat-api";
+import type { ChatHistoryDto } from "@/lib/chat-api";
 
 type ChatMessage = {
   id: string;
@@ -46,7 +46,6 @@ export function AIChatWidget() {
     }
   ]);
   const [input, setInput] = useState("");
-  const [conversationId, setConversationId] = useState<ChatConversationId>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -74,18 +73,24 @@ export function AIChatWidget() {
     setIsLoading(true);
 
     try {
+      const history: ChatHistoryDto[] = messages
+        .filter((item) => item.id !== "welcome")
+        .map((item) => ({
+          role: item.role === "assistant" ? "model" : "user",
+          text: item.content
+        }));
+
       const response = await sendAIChatMessage({
         message,
-        conversationId
+        history
       });
 
-      setConversationId(response.conversationId);
       setMessages((currentMessages) => [
         ...currentMessages,
         {
           id: createMessageId(),
           role: "assistant",
-          content: response.reply
+          content: response.message
         }
       ]);
     } catch {

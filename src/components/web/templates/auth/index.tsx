@@ -9,6 +9,14 @@ import InputField from "@/components/web/atoms/next-input/input-field";
 import sonner from "@/components/web/atoms/sonner-atom";
 import { E_KEY_COOKIE } from "@/enums/common";
 import { parseExpiresIn, setCookie } from "@/lib/cookie";
+import {
+  clearWebAuthSession,
+  getWebStoredUser,
+  getWebUserDisplayName,
+  hasWebAuthSession,
+  WebStoredUser,
+  WEB_USER_STORAGE_KEY
+} from "@/lib/web-auth-session";
 import WebAuthService from "@/services/web/auth";
 import { UserRegisterRequest } from "@/types/web/request";
 import { isEmail, isMobilePhone, isNullOrEmpty } from "@/utils/validate";
@@ -38,7 +46,6 @@ const initialFormState: AuthFormState = {
 };
 
 const ACCESS_TOKEN_KEY = E_KEY_COOKIE.access_token;
-const USER_STORAGE_KEY = "user";
 
 const authContent = {
   login: {
@@ -65,13 +72,12 @@ const AuthTemplate: React.FC<IProps> = ({ mode }) => {
   const [form, setForm] = useState<AuthFormState>(initialFormState);
   const [errors, setErrors] = useState<Partial<Record<keyof AuthFormState, string>>>({});
   const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<WebStoredUser | null>(null);
+  const currentUserName = getWebUserDisplayName(currentUser);
 
   useEffect(() => {
-    const token = window.localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (token) {
-      router.replace("/");
-    }
-  }, [router]);
+    setCurrentUser(hasWebAuthSession() ? getWebStoredUser() : null);
+  }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -154,7 +160,7 @@ const AuthTemplate: React.FC<IProps> = ({ mode }) => {
     }
 
     window.localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
-    window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.dataUser));
+    window.localStorage.setItem(WEB_USER_STORAGE_KEY, JSON.stringify(data.dataUser));
     setCookie(ACCESS_TOKEN_KEY, data.access_token, {
       expires: parseExpiresIn(data.expires_in)
     });
@@ -186,6 +192,18 @@ const AuthTemplate: React.FC<IProps> = ({ mode }) => {
       message: response?.error?.message || "Đăng ký thành công"
     });
     router.push("/dang-nhap");
+  };
+
+  const handleSwitchAccount = () => {
+    clearWebAuthSession();
+    setCurrentUser(null);
+    setForm(initialFormState);
+    setErrors({});
+    sonner({
+      type: "success",
+      message: "Đã đăng xuất. Bạn có thể đăng nhập tài khoản khác."
+    });
+    router.refresh();
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -231,91 +249,109 @@ const AuthTemplate: React.FC<IProps> = ({ mode }) => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 p-6 md:p-8">
-            {mode === "register" && (
-              <InputField
-                name="name"
-                label="Họ và tên"
-                placeholder="Nhập họ và tên"
-                autoComplete="name"
-                value={form.name}
-                error={errors.name}
-                onChange={handleChange}
-              />
-            )}
-            <InputField
-              name="phone"
-              label="Số điện thoại"
-              placeholder="Nhập số điện thoại"
-              autoComplete="tel"
-              inputMode="tel"
-              value={form.phone}
-              error={errors.phone}
-              onChange={handleChange}
-            />
-            {mode === "register" && (
-              <InputField
-                name="email"
-                type="email"
-                label="Email"
-                placeholder="Nhập email"
-                autoComplete="email"
-                value={form.email}
-                error={errors.email}
-                onChange={handleChange}
-              />
-            )}
-            {mode === "register" && (
-              <InputField
-                name="address"
-                label="Địa chỉ"
-                placeholder="Nhập địa chỉ"
-                autoComplete="street-address"
-                value={form.address}
-                error={errors.address}
-                onChange={handleChange}
-              />
-            )}
-            <InputField
-              name="password"
-              type="password"
-              label="Mật khẩu"
-              placeholder="Nhập mật khẩu"
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              value={form.password}
-              error={errors.password}
-              onChange={handleChange}
-            />
-            {mode === "register" && (
-              <InputField
-                name="confirmPassword"
-                type="password"
-                label="Nhập lại mật khẩu"
-                placeholder="Nhập lại mật khẩu"
-                autoComplete="new-password"
-                value={form.confirmPassword}
-                error={errors.confirmPassword}
-                onChange={handleChange}
-              />
-            )}
-            {mode === "login" && (
-              <div className="flex justify-end">
-                <Link href="/dang-nhap" className="text-sm font-medium text-blue-12 hover:underline">
-                  Quên mật khẩu?
-                </Link>
+          {currentUser ? (
+            <div className="flex flex-col justify-center space-y-4 p-6 md:p-8">
+              <div className="rounded-lg border border-blue-12/15 bg-blue-ea p-4">
+                <p className="text-sm text-black-02">Bạn đang đăng nhập bằng</p>
+                <p className="mt-1 text-lg font-semibold text-blue-12">{currentUserName || "Tài khoản hiện tại"}</p>
+                {currentUser.phone && <p className="mt-1 text-sm text-black-02">{currentUser.phone}</p>}
               </div>
-            )}
-            <ButtonRoot type="submit" size="larger" className="w-full" loading={loading}>
-              <DynamicIcon name={mode === "login" ? "log-in" : "user-plus"} className="h-5 w-5" />
-              <span>{content.submitLabel}</span>
-            </ButtonRoot>
-            <p className="text-center text-sm text-black-02">
-              {content.switchLabel}{" "}
-              <Link href={content.switchHref} className="font-semibold text-blue-12 hover:underline">
-                {content.switchAction}
-              </Link>
-            </p>
-          </form>
+              <ButtonRoot type="button" size="larger" className="w-full" onClick={() => router.push("/")}>
+                <DynamicIcon name="home" className="h-5 w-5" />
+                <span>Tiếp tục với tài khoản này</span>
+              </ButtonRoot>
+              <ButtonRoot type="button" size="larger" variant="outline" className="w-full" onClick={handleSwitchAccount}>
+                <DynamicIcon name="log-out" className="h-5 w-5" />
+                <span>Đăng xuất để đổi tài khoản</span>
+              </ButtonRoot>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4 p-6 md:p-8">
+              {mode === "register" && (
+                <InputField
+                  name="name"
+                  label="Họ và tên"
+                  placeholder="Nhập họ và tên"
+                  autoComplete="name"
+                  value={form.name}
+                  error={errors.name}
+                  onChange={handleChange}
+                />
+              )}
+              <InputField
+                name="phone"
+                label="Số điện thoại"
+                placeholder="Nhập số điện thoại"
+                autoComplete="tel"
+                inputMode="tel"
+                value={form.phone}
+                error={errors.phone}
+                onChange={handleChange}
+              />
+              {mode === "register" && (
+                <InputField
+                  name="email"
+                  type="email"
+                  label="Email"
+                  placeholder="Nhập email"
+                  autoComplete="email"
+                  value={form.email}
+                  error={errors.email}
+                  onChange={handleChange}
+                />
+              )}
+              {mode === "register" && (
+                <InputField
+                  name="address"
+                  label="Địa chỉ"
+                  placeholder="Nhập địa chỉ"
+                  autoComplete="street-address"
+                  value={form.address}
+                  error={errors.address}
+                  onChange={handleChange}
+                />
+              )}
+              <InputField
+                name="password"
+                type="password"
+                label="Mật khẩu"
+                placeholder="Nhập mật khẩu"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                value={form.password}
+                error={errors.password}
+                onChange={handleChange}
+              />
+              {mode === "register" && (
+                <InputField
+                  name="confirmPassword"
+                  type="password"
+                  label="Nhập lại mật khẩu"
+                  placeholder="Nhập lại mật khẩu"
+                  autoComplete="new-password"
+                  value={form.confirmPassword}
+                  error={errors.confirmPassword}
+                  onChange={handleChange}
+                />
+              )}
+              {mode === "login" && (
+                <div className="flex justify-end">
+                  <Link href="/dang-nhap" className="text-sm font-medium text-blue-12 hover:underline">
+                    Quên mật khẩu?
+                  </Link>
+                </div>
+              )}
+              <ButtonRoot type="submit" size="larger" className="w-full" loading={loading}>
+                <DynamicIcon name={mode === "login" ? "log-in" : "user-plus"} className="h-5 w-5" />
+                <span>{content.submitLabel}</span>
+              </ButtonRoot>
+              <p className="text-center text-sm text-black-02">
+                {content.switchLabel}{" "}
+                <Link href={content.switchHref} className="font-semibold text-blue-12 hover:underline">
+                  {content.switchAction}
+                </Link>
+              </p>
+            </form>
+          )}
         </div>
       </div>
     </main>

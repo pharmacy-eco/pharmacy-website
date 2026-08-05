@@ -97,7 +97,7 @@ const DialogBlogs = React.forwardRef<IRef, IProps>(({ onSuccess }, ref) => {
         const categories = res?.data.items || [];
         const blogCategories = categories.filter((item: ICategory) => item.type === "BLOG");
         const items = (blogCategories.length > 0 ? blogCategories : categories)
-          .filter((item: ICategory) => !!item.id)
+          .filter((item: ICategory) => !!item.id && item.type === "BLOG")
           .map((item: ICategory) => ({
             label: item.name,
             value: String(item.id)

@@ -17,7 +17,19 @@ const CommentProduct = ({ reviews }: IProps) => {
           <div className="">
             <div className="">
               <p className="text-base font-semibold block">{review.name}</p>
-              {review.star} <DynamicIcon fill="#eab308" size={14} name="star" className="text-yellow-500" />
+              <div className="flex items-center gap-1">
+                {Array(review.star)
+                  .fill(0)
+                  .map((_, starIndex) => (
+                    <DynamicIcon
+                      key={starIndex}
+                      fill="#eab308"
+                      size={14}
+                      name="star"
+                      className="text-yellow-500"
+                    />
+                  ))}
+              </div>
             </div>
             <p className="font-normal text-sm">{review.content}</p>
             <span className="font-normal text-gray-400 text-xs">

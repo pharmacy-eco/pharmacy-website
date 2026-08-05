@@ -7,7 +7,6 @@ import { DynamicIcon } from "@/components/web/atoms/dynamic-lucidev";
 import { useCartStore } from "@/stores/cart";
 import { usePathname, useRouter } from "next/navigation";
 import HeaderCart from "./header-cart";
-import { E_KEY_COOKIE } from "@/enums/common";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,45 +14,39 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {
+  clearWebAuthSession,
+  getWebAccessToken,
+  getWebStoredUser,
+  getWebUserDisplayName,
+  WebStoredUser
+} from "@/lib/web-auth-session";
 
 interface IProps {}
-
-type HeaderUser = {
-  fullname?: string;
-  username?: string;
-  phone?: string;
-};
-
-const USER_STORAGE_KEY = "user";
 
 const HeaderAuth: React.FC<IProps> = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [isCLient, setCLient] = useState(false);
-  const [user, setUser] = useState<HeaderUser | null>(null);
+  const [user, setUser] = useState<WebStoredUser | null>(null);
 
-  const userName = user?.fullname || user?.username || user?.phone;
+  const userName = getWebUserDisplayName(user);
 
   const handleCart = () => {
     router.push("/gio-hang");
   };
 
   useEffect(() => {
-    const token = window.localStorage.getItem(E_KEY_COOKIE.access_token);
-    const storedUser = window.localStorage.getItem(USER_STORAGE_KEY);
-
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        setUser(null);
-      }
-    } else {
-      setUser(null);
-    }
-
+    setUser(getWebAccessToken() ? getWebStoredUser() : null);
     setCLient(true);
   }, [pathname]);
+
+  const handleLogout = () => {
+    clearWebAuthSession();
+    setUser(null);
+    router.push("/dang-nhap");
+    router.refresh();
+  };
 
   const setCartOpen = useCartStore((state) => state.setCartOpen);
   const totalQuantity = useCartStore((state) => state.cart.length);
@@ -108,6 +101,15 @@ const HeaderAuth: React.FC<IProps> = () => {
               <span className="font-medium">Quản lý thông tin cá nhân</span>
             </Link>
           </DropdownMenuItem>
+          {userName && (
+            <>
+              <DropdownMenuSeparator className="my-3" />
+              <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer rounded-xl px-3 py-3 text-red-500">
+                <DynamicIcon name="log-out" className="h-5 w-5" />
+                <span className="font-medium">Đăng xuất / đổi tài khoản</span>
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       <div className="group relative" onMouseEnter={() => setCartOpen(true)}>

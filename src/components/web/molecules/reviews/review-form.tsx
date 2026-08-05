@@ -35,6 +35,16 @@ const ReviewForm: React.FC<IProps> = ({ product }: IProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const clearForm = () => {
+    setFormData({
+      product_id: product.id,
+      name: "",
+      star: 1,
+      content: ""
+    });
+    setRating(1);
+  };
+
   const handleSubmit = async () => {
     if (!formData.name) {
       sonner({
@@ -43,6 +53,7 @@ const ReviewForm: React.FC<IProps> = ({ product }: IProps) => {
       });
       return;
     }
+    formData.star = rating;
     setLoading(true);
     _sendFormReview(formData)
       .then((res) => {
@@ -51,6 +62,7 @@ const ReviewForm: React.FC<IProps> = ({ product }: IProps) => {
             type: "success",
             message: "Đánh giá sản phẩm thành công!"
           });
+          clearForm();
           closeReview();
           return;
         } else {

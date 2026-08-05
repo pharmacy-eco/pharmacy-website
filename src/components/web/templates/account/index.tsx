@@ -2,11 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import ButtonRoot from "@/components/web/atoms/button-atom/button-root";
 import BreadcrumbAtom from "@/components/web/atoms/breadcrumb-atom";
 import { DynamicIcon } from "@/components/web/atoms/dynamic-lucidev";
 import InputField from "@/components/web/atoms/next-input/input-field";
 import { cn } from "@/lib/utils";
+import {
+  clearWebAuthSession,
+  getWebStoredUser,
+  getWebUserDisplayName,
+  WebStoredUser,
+  WEB_USER_STORAGE_KEY
+} from "@/lib/web-auth-session";
 
 type AccountPage = "orders" | "profile";
 
@@ -18,24 +26,12 @@ type ProfileFormState = {
   address: string;
 };
 
-type StoredUser = {
-  fullname?: string;
-  name?: string;
-  username?: string;
-  phone?: string;
-  email?: string;
-  birthday?: string;
-  address?: string;
-};
-
 interface AccountShellProps {
   active: AccountPage;
   title: string;
   description: string;
   children: React.ReactNode;
 }
-
-const USER_STORAGE_KEY = "user";
 
 const initialProfileForm: ProfileFormState = {
   name: "",
@@ -48,17 +44,6 @@ const initialProfileForm: ProfileFormState = {
 const normalizeDateInput = (date?: string) => {
   if (!date) return "";
   return date.includes("T") ? date.split("T")[0] : date;
-};
-
-const getStoredUser = (): StoredUser | null => {
-  const storedUser = window.localStorage.getItem(USER_STORAGE_KEY);
-  if (!storedUser) return null;
-
-  try {
-    return JSON.parse(storedUser) as StoredUser;
-  } catch {
-    return null;
-  }
 };
 
 const accountMenu = [
@@ -77,12 +62,19 @@ const accountMenu = [
 ] as const;
 
 const AccountShell: React.FC<AccountShellProps> = ({ active, title, description, children }) => {
+  const router = useRouter();
   const [accountName, setAccountName] = useState("");
 
   useEffect(() => {
-    const user = getStoredUser();
-    setAccountName(user?.fullname || user?.name || user?.username || user?.phone || "");
+    const user = getWebStoredUser();
+    setAccountName(getWebUserDisplayName(user));
   }, []);
+
+  const handleLogout = () => {
+    clearWebAuthSession();
+    router.push("/dang-nhap");
+    router.refresh();
+  };
 
   return (
     <main className="bg-blue-ea">
@@ -126,6 +118,15 @@ const AccountShell: React.FC<AccountShellProps> = ({ active, title, description,
                 </Link>
               ))}
             </nav>
+            <ButtonRoot
+              type="button"
+              variant="outline"
+              className="mt-3 w-full border-red-500 text-red-500 hover:bg-red-50"
+              onClick={handleLogout}
+            >
+              <DynamicIcon name="log-out" className="h-5 w-5" />
+              <span>Đăng xuất / đổi tài khoản</span>
+            </ButtonRoot>
           </aside>
           <section className="rounded-lg bg-white p-4 shadow md:p-6">
             <div className="mb-5">
@@ -167,7 +168,7 @@ const ProfileTemplate = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const user = getStoredUser();
+    const user = getWebStoredUser();
     if (!user) return;
 
     setForm({
@@ -187,10 +188,10 @@ const ProfileTemplate = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const currentUser = getStoredUser() || {};
+    const currentUser: WebStoredUser = getWebStoredUser() || {};
 
     window.localStorage.setItem(
-      USER_STORAGE_KEY,
+      WEB_USER_STORAGE_KEY,
       JSON.stringify({
         ...currentUser,
         fullname: form.name.trim(),
